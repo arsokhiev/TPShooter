@@ -12,8 +12,8 @@
 UCLASS()
 class TPSHOOTER_API ATPSGameModeBase : public AGameModeBase
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-  public:
-    ATPSGameModeBase();
+public:
+	ATPSGameModeBase();
 };

@@ -7,6 +7,6 @@
 
 ATPSGameModeBase::ATPSGameModeBase()
 {
-    DefaultPawnClass = ATPSBaseCharacter::StaticClass();
-    PlayerControllerClass = ATPSPlayerController::StaticClass();
+	DefaultPawnClass = ATPSBaseCharacter::StaticClass();
+	PlayerControllerClass = ATPSPlayerController::StaticClass();
 }
