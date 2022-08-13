@@ -45,6 +45,8 @@ void ATPSBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAxis("LookUp", this, &ATPSBaseCharacter::LookUp);
 	PlayerInputComponent->BindAxis("TurnAround", this, &ATPSBaseCharacter::TurnAround);
 
+	//функция Jump реализована в классе Pawn
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ATPSBaseCharacter::Jump);
 }
 
 void ATPSBaseCharacter::MoveForward(float Amount)
