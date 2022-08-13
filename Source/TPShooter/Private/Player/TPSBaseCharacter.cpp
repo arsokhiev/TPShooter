@@ -3,6 +3,7 @@
 #include "Player/TPSBaseCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 
 // Sets default values
 ATPSBaseCharacter::ATPSBaseCharacter()
@@ -11,8 +12,13 @@ ATPSBaseCharacter::ATPSBaseCharacter()
 	// it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// этот компонент нужен, чтобы камера вращалась не вокруг себя а вокруг этого компонента
+	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
+	SpringArmComponent->SetupAttachment(GetRootComponent());
+	SpringArmComponent->bUsePawnControlRotation = true;
+
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
-	CameraComponent->SetupAttachment(GetRootComponent());
+	CameraComponent->SetupAttachment(SpringArmComponent);
 }
 
 // Called when the game starts or when spawned
@@ -32,10 +38,13 @@ void ATPSBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	//вызываются каждый фрейм
+	//вызываются каждый фрейм (при нажатии)
 	//params: 1. mapping в project settings | 2. указатель на объект функция которого вызывается | 3. ссылка на метод :)
 	PlayerInputComponent->BindAxis("MoveForward", this, &ATPSBaseCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ATPSBaseCharacter::MoveRight);
+	PlayerInputComponent->BindAxis("LookUp", this, &ATPSBaseCharacter::LookUp);
+	PlayerInputComponent->BindAxis("TurnAround", this, &ATPSBaseCharacter::TurnAround);
+
 }
 
 void ATPSBaseCharacter::MoveForward(float Amount)
@@ -47,4 +56,16 @@ void ATPSBaseCharacter::MoveForward(float Amount)
 void ATPSBaseCharacter::MoveRight(float Amount)
 {
 	AddMovementInput(GetActorRightVector(), Amount);
+}
+
+void ATPSBaseCharacter::LookUp(float Amount)
+{
+	//param: значение угла, которое будет добавлено к вращению
+	AddControllerPitchInput(Amount);
+}
+
+void ATPSBaseCharacter::TurnAround(float Amount)
+{
+	//изменение вращения пауна (чарактера) через вращение контроллера
+	AddControllerYawInput(Amount);
 }
