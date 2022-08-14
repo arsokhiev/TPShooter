@@ -4,10 +4,11 @@
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
+#include "Components/TPSCharacterMovementComponent.h"
 
 // Sets default values
-ATPSBaseCharacter::ATPSBaseCharacter()
+ATPSBaseCharacter::ATPSBaseCharacter(const FObjectInitializer& ObjInit) 
+	: ACharacter(ObjInit.SetDefaultSubobjectClass<UTPSCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need
 	// it.
@@ -20,9 +21,6 @@ ATPSBaseCharacter::ATPSBaseCharacter()
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
 	CameraComponent->SetupAttachment(SpringArmComponent);
-
-	DefaultSpeed = GetCharacterMovement()->MaxWalkSpeed;
-	RunSpeed = DefaultSpeed * 2;
 }
 
 // Called when the game starts or when spawned
@@ -52,12 +50,13 @@ void ATPSBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	//функция Jump реализована в классе Pawn
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ATPSBaseCharacter::Jump);
 
-	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &ATPSBaseCharacter::Run);
-	PlayerInputComponent->BindAction("Run", IE_Released, this, &ATPSBaseCharacter::Walk);
+	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &ATPSBaseCharacter::OnStartRunning);
+	PlayerInputComponent->BindAction("Run", IE_Released, this, &ATPSBaseCharacter::OnStopRunning);
 }
 
 void ATPSBaseCharacter::MoveForward(float Amount)
 {
+	IsMovingForward = Amount > 0.0f;
 	// params: 1. Смещать относительно направления в данный момент | 2. число указанное в mapping | 3. 
 	AddMovementInput(GetActorForwardVector(), Amount);
 }
@@ -79,12 +78,17 @@ void ATPSBaseCharacter::TurnAround(float Amount)
 	AddControllerYawInput(Amount);
 }
 
-void ATPSBaseCharacter::Run()
+bool ATPSBaseCharacter::IsRunning() const
 {
-	GetCharacterMovement()->MaxWalkSpeed = RunSpeed;
+	return WantsToRun && IsMovingForward && !this->GetVelocity().IsZero();
 }
 
-void ATPSBaseCharacter::Walk()
+void ATPSBaseCharacter::OnStartRunning()
 {
-	GetCharacterMovement()->MaxWalkSpeed = DefaultSpeed;
+	WantsToRun = true;
+}
+
+void ATPSBaseCharacter::OnStopRunning()
+{
+	WantsToRun = false;
 }
