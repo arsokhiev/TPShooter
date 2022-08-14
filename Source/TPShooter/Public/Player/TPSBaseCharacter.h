@@ -8,6 +8,7 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class UCharacterMovementComponent;
 
 UCLASS()
 class TPSHOOTER_API ATPSBaseCharacter : public ACharacter
@@ -28,6 +29,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	UCameraComponent* CameraComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	UCharacterMovementComponent* CharacterMovementComponent;
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -36,9 +40,15 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 private:
+	float DefaultSpeed;
+	float RunSpeed;
+
 	void MoveForward(float Amount);
 	void MoveRight(float Amount);
 
 	void LookUp(float Amount);
 	void TurnAround(float Amount);
+
+	void Run();
+	void Walk();
 };

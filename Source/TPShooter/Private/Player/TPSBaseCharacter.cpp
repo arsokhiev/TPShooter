@@ -4,6 +4,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 ATPSBaseCharacter::ATPSBaseCharacter()
@@ -19,6 +20,9 @@ ATPSBaseCharacter::ATPSBaseCharacter()
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
 	CameraComponent->SetupAttachment(SpringArmComponent);
+
+	DefaultSpeed = GetCharacterMovement()->MaxWalkSpeed;
+	RunSpeed = DefaultSpeed * 2;
 }
 
 // Called when the game starts or when spawned
@@ -47,6 +51,9 @@ void ATPSBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 	//функция Jump реализована в классе Pawn
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ATPSBaseCharacter::Jump);
+
+	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &ATPSBaseCharacter::Run);
+	PlayerInputComponent->BindAction("Run", IE_Released, this, &ATPSBaseCharacter::Walk);
 }
 
 void ATPSBaseCharacter::MoveForward(float Amount)
@@ -70,4 +77,14 @@ void ATPSBaseCharacter::TurnAround(float Amount)
 {
 	//изменение вращения пауна (чарактера) через вращение контроллера
 	AddControllerYawInput(Amount);
+}
+
+void ATPSBaseCharacter::Run()
+{
+	GetCharacterMovement()->MaxWalkSpeed = RunSpeed;
+}
+
+void ATPSBaseCharacter::Walk()
+{
+	GetCharacterMovement()->MaxWalkSpeed = DefaultSpeed;
 }
