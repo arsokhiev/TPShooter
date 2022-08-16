@@ -57,12 +57,14 @@ void ATPSBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 void ATPSBaseCharacter::MoveForward(float Amount)
 {
 	IsMovingForward = Amount > 0.0f;
+	if (Amount == 0.0f) return;
 	// params: 1. Смещать относительно направления в данный момент | 2. число указанное в mapping | 3. 
 	AddMovementInput(GetActorForwardVector(), Amount);
 }
 
 void ATPSBaseCharacter::MoveRight(float Amount)
 {
+	if (Amount == 0.0f) return;
 	AddMovementInput(GetActorRightVector(), Amount);
 }
 
@@ -81,6 +83,17 @@ void ATPSBaseCharacter::TurnAround(float Amount)
 bool ATPSBaseCharacter::IsRunning() const
 {
 	return WantsToRun && IsMovingForward && !this->GetVelocity().IsZero();
+}
+
+float ATPSBaseCharacter::GetMovementDirection() const
+{
+	if (GetVelocity().IsZero()) return 0.0f;
+	const auto VelocityNormal = GetVelocity().GetSafeNormal();
+	//acos - возвращает угол в радианах
+	const auto Angle = FMath::Acos(FVector::DotProduct(GetActorForwardVector(), VelocityNormal));
+	const auto CrossProduct = FVector::CrossProduct(GetActorForwardVector(), VelocityNormal);
+
+	return FMath::RadiansToDegrees(Angle) * FMath::Sign(CrossProduct.Z);
 }
 
 void ATPSBaseCharacter::OnStartRunning()

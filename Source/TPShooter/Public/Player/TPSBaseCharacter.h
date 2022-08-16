@@ -38,6 +38,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	bool IsRunning() const;
 
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	float GetMovementDirection() const;
+
 private:
 	//зажат ли l shift
 	bool WantsToRun = false;
