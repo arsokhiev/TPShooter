@@ -5,6 +5,8 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/TPSCharacterMovementComponent.h"
+#include "Components/TPSHealthComponent.h"
+#include "Components/TextRenderComponent.h"
 
 // Sets default values
 ATPSBaseCharacter::ATPSBaseCharacter(const FObjectInitializer& ObjInit) 
@@ -21,6 +23,12 @@ ATPSBaseCharacter::ATPSBaseCharacter(const FObjectInitializer& ObjInit)
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
 	CameraComponent->SetupAttachment(SpringArmComponent);
+
+	//SetupAttachment не нужен (не представлен на сцене)
+	HealthComponent = CreateDefaultSubobject<UTPSHealthComponent>("HealthComponent");
+
+	HealthTextComponent = CreateDefaultSubobject<UTextRenderComponent>("HealthTextComponent");
+	HealthTextComponent->SetupAttachment(GetRootComponent());
 }
 
 // Called when the game starts or when spawned
@@ -33,6 +41,9 @@ void ATPSBaseCharacter::BeginPlay()
 void ATPSBaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	const auto Health = HealthComponent->GetHealth();
+	HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
 }
 
 // Called to bind functionality to input
