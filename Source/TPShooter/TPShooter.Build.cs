@@ -12,7 +12,7 @@ public class TPShooter : ModuleRules
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
-		PublicIncludePaths.AddRange(new string[] { "TPShooter/Public/Player", "TPShooter/Public/Components" });
+		PublicIncludePaths.AddRange(new string[] { "TPShooter/Public/Player", "TPShooter/Public/Components", "TPShooter/Public/Dev" });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

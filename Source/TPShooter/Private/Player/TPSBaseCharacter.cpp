@@ -8,6 +8,8 @@
 #include "Components/TPSHealthComponent.h"
 #include "Components/TextRenderComponent.h"
 
+DEFINE_LOG_CATEGORY_STATIC(BaseCharacterLog, All, All);
+
 // Sets default values
 ATPSBaseCharacter::ATPSBaseCharacter(const FObjectInitializer& ObjInit) 
 	: ACharacter(ObjInit.SetDefaultSubobjectClass<UTPSCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -44,6 +46,13 @@ void ATPSBaseCharacter::Tick(float DeltaTime)
 
 	const auto Health = HealthComponent->GetHealth();
 	HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
+
+	//нанесение урона самому себе
+	//params: 1. сколько урона нанести
+	//2. доп инфа передаваемая с уроном (вид урона) (объект создан конструктором по умолчанию)
+	//3. передан контроллер, который описан в классе Pawn (чтобы знать о том, какой объект нанес урон)
+	//4. актор, ответственный за ущерб (граната, пуля...)(урон самому себе)
+	TakeDamage(0.1f, FDamageEvent{}, Controller, this);
 }
 
 // Called to bind functionality to input
