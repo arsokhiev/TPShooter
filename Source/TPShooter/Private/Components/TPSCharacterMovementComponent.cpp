@@ -6,10 +6,8 @@
 
 float UTPSCharacterMovementComponent::GetMaxSpeed() const
 {
-	//поучил MaxSpeed из базового класса
-	const float MaxSpeed = UCharacterMovementComponent::GetMaxSpeed();
-
-	//возвращает указатель на паун(“ѕ—„арактер)
-	const ATPSBaseCharacter* Player = Cast<ATPSBaseCharacter>(this->GetPawnOwner());
+	const float MaxSpeed = this->UCharacterMovementComponent::GetMaxSpeed();
+	ATPSBaseCharacter *Player = Cast<ATPSBaseCharacter>(GetPawnOwner());
+	
 	return Player && Player->IsRunning() ? MaxSpeed * RunModifier : MaxSpeed;
 }

@@ -2,11 +2,13 @@
 
 
 #include "TPSGameModeBase.h"
-#include "Player/TPSBaseCharacter.h"
-#include "Player/TPSPlayerController.h"
+#include "TPSBaseCharacter.h"
+#include "TPSPlayerController.h"
+#include "TPSGameHUD.h"
 
 ATPSGameModeBase::ATPSGameModeBase()
 {
 	DefaultPawnClass = ATPSBaseCharacter::StaticClass();
 	PlayerControllerClass = ATPSPlayerController::StaticClass();
+	HUDClass = ATPSGameHUD::StaticClass();
 }

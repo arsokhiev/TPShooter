@@ -1,119 +1,122 @@
 // Third Player Shooter, All Rights Reserved
 
+
 #include "Player/TPSBaseCharacter.h"
+#include "Components/TPSHealthComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/TPSCharacterMovementComponent.h"
-#include "Components/TPSHealthComponent.h"
 #include "Components/TextRenderComponent.h"
+#include "Engine/DamageEvents.h"
+#include "PhysicsProxy/GeometryCollectionPhysicsProxy.h"
+#include "GameFramework/Controller.h"
+#include "Components/TPSWeaponComponent.h"
+#include "Components/CapsuleComponent.h"
 
-DEFINE_LOG_CATEGORY_STATIC(BaseCharacterLog, All, All);
+DEFINE_LOG_CATEGORY_STATIC(LogBaseCharacter, All, All)
 
 // Sets default values
-ATPSBaseCharacter::ATPSBaseCharacter(const FObjectInitializer& ObjInit) 
+ATPSBaseCharacter::ATPSBaseCharacter(const FObjectInitializer& ObjInit)
 	: ACharacter(ObjInit.SetDefaultSubobjectClass<UTPSCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
-	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need
-	// it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	// этот компонент нужен, чтобы камера вращалась не вокруг себя а вокруг этого компонента
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
-	SpringArmComponent->SetupAttachment(GetRootComponent());
+	SpringArmComponent->SetupAttachment(this->GetRootComponent());
 	SpringArmComponent->bUsePawnControlRotation = true;
-
+	SpringArmComponent->SocketOffset = FVector(0.0f, 100.0f, 80.0f);
+	
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
 	CameraComponent->SetupAttachment(SpringArmComponent);
 
-	//SetupAttachment не нужен (не представлен на сцене)
 	HealthComponent = CreateDefaultSubobject<UTPSHealthComponent>("HealthComponent");
-
+	
 	HealthTextComponent = CreateDefaultSubobject<UTextRenderComponent>("HealthTextComponent");
 	HealthTextComponent->SetupAttachment(GetRootComponent());
-}
+	HealthTextComponent->SetOwnerNoSee(true);
 
-// Called when the game starts or when spawned
+	WeaponComponent = CreateDefaultSubobject<UTPSWeaponComponent>("WeaponComponent");
+}	
+
 void ATPSBaseCharacter::BeginPlay()
 {
-	Super::BeginPlay();
+	ACharacter::BeginPlay();
+
+	check(HealthComponent);
+	check(HealthTextComponent);
+	check(GetCharacterMovement());
+	check(GetMesh());
+
+	OnHealthChangedHandle(HealthComponent->GetHealth(), 0.0f); 
+	HealthComponent->OnDeath.AddUObject(this, &ATPSBaseCharacter::OnDeathHandle);
+	HealthComponent->OnHealthChanged.AddUObject(this, &ATPSBaseCharacter::OnHealthChangedHandle);
+
+	LandedDelegate.AddDynamic(this, &ATPSBaseCharacter::OnGroundLanded);
 }
 
-// Called every frame
 void ATPSBaseCharacter::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
-
-	const auto Health = HealthComponent->GetHealth();
-	HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
-
-	//нанесение урона самому себе
-	//params: 1. сколько урона нанести
-	//2. доп инфа передаваемая с уроном (вид урона) (объект создан конструктором по умолчанию)
-	//3. передан контроллер, который описан в классе Pawn (чтобы знать о том, какой объект нанес урон)
-	//4. актор, ответственный за ущерб (граната, пуля...)(урон самому себе)
-	TakeDamage(0.1f, FDamageEvent{}, Controller, this);
+	ACharacter::Tick(DeltaTime);
 }
 
-// Called to bind functionality to input
 void ATPSBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	ACharacter::SetupPlayerInputComponent(PlayerInputComponent);
 
-	//вызываются каждый фрейм (при нажатии)
-	//params: 1. mapping в project settings | 2. указатель на объект функция которого вызывается | 3. ссылка на метод :)
+	check(PlayerInputComponent);
+	check(WeaponComponent);
+
 	PlayerInputComponent->BindAxis("MoveForward", this, &ATPSBaseCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ATPSBaseCharacter::MoveRight);
-	PlayerInputComponent->BindAxis("LookUp", this, &ATPSBaseCharacter::LookUp);
-	PlayerInputComponent->BindAxis("TurnAround", this, &ATPSBaseCharacter::TurnAround);
 
-	//функция Jump реализована в классе Pawn
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ATPSBaseCharacter::Jump);
+	PlayerInputComponent->BindAxis("LookUp", this, &ATPSBaseCharacter::AddControllerPitchInput);
+	PlayerInputComponent->BindAxis("TurnAround", this, &ATPSBaseCharacter::AddControllerYawInput);
 
-	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &ATPSBaseCharacter::OnStartRunning);
-	PlayerInputComponent->BindAction("Run", IE_Released, this, &ATPSBaseCharacter::OnStopRunning);
-}
+	PlayerInputComponent->BindAction("Jump", EInputEvent::IE_Pressed, this, &ATPSBaseCharacter::Jump);
+	
+	PlayerInputComponent->BindAction("Run", EInputEvent::IE_Pressed, this, &ATPSBaseCharacter::OnStartRunning);
+	PlayerInputComponent->BindAction("Run", EInputEvent::IE_Released, this, &ATPSBaseCharacter::OnStopRunning);
 
-void ATPSBaseCharacter::MoveForward(float Amount)
-{
-	IsMovingForward = Amount > 0.0f;
-	if (Amount == 0.0f) return;
-	// params: 1. Смещать относительно направления в данный момент | 2. число указанное в mapping | 3. 
-	AddMovementInput(GetActorForwardVector(), Amount);
-}
+	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Pressed, WeaponComponent, &UTPSWeaponComponent::StartFire);
+	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Released, WeaponComponent, &UTPSWeaponComponent::StopFire);
 
-void ATPSBaseCharacter::MoveRight(float Amount)
-{
-	if (Amount == 0.0f) return;
-	AddMovementInput(GetActorRightVector(), Amount);
-}
-
-void ATPSBaseCharacter::LookUp(float Amount)
-{
-	//param: значение угла, которое будет добавлено к вращению
-	AddControllerPitchInput(Amount);
-}
-
-void ATPSBaseCharacter::TurnAround(float Amount)
-{
-	//изменение вращения пауна (чарактера) через вращение контроллера
-	AddControllerYawInput(Amount);
+	PlayerInputComponent->BindAction("NextWeapon", EInputEvent::IE_Pressed, WeaponComponent, &UTPSWeaponComponent::NextWeapon);
+	PlayerInputComponent->BindAction("Reload", EInputEvent::IE_Pressed, WeaponComponent, &UTPSWeaponComponent::Reload);
 }
 
 bool ATPSBaseCharacter::IsRunning() const
 {
-	return WantsToRun && IsMovingForward && !this->GetVelocity().IsZero();
+	return WantsToRun && IsMovingForward && !IsMovingSideward && !this->GetVelocity().IsZero();
 }
 
 float ATPSBaseCharacter::GetMovementDirection() const
 {
-	if (GetVelocity().IsZero()) return 0.0f;
-	const auto VelocityNormal = GetVelocity().GetSafeNormal();
-	//acos - возвращает угол в радианах
-	const auto Angle = FMath::Acos(FVector::DotProduct(GetActorForwardVector(), VelocityNormal));
-	const auto CrossProduct = FVector::CrossProduct(GetActorForwardVector(), VelocityNormal);
+	if (this->GetVelocity().IsZero()) return 0.0f;
+	
+	const auto NormalizedVelocity = this->GetVelocity().GetSafeNormal();
+	const auto ForwardVector = this->GetActorForwardVector();
 
-	return FMath::RadiansToDegrees(Angle) * FMath::Sign(CrossProduct.Z);
+	const auto AngleDegrees = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(ForwardVector, NormalizedVelocity)));
+	const auto CrossProduct = FVector::CrossProduct(ForwardVector, NormalizedVelocity);
+
+	const auto ZSign = FMath::Sign(CrossProduct.Z);
+	
+	return CrossProduct.IsZero() ? AngleDegrees : AngleDegrees * ZSign;
+}
+
+void ATPSBaseCharacter::MoveForward(float Scale)
+{
+	IsMovingForward = Scale > 0.0f;
+	if (Scale == 0.0f) return;
+	AddMovementInput(this->GetActorForwardVector(), Scale);
+}
+
+void ATPSBaseCharacter::MoveRight(float Scale)
+{
+	IsMovingSideward = Scale > 0.0f || Scale < 0.0f;
+	if (Scale == 0.0f) return;
+	AddMovementInput(this->GetActorRightVector(), Scale);
 }
 
 void ATPSBaseCharacter::OnStartRunning()
@@ -124,4 +127,44 @@ void ATPSBaseCharacter::OnStartRunning()
 void ATPSBaseCharacter::OnStopRunning()
 {
 	WantsToRun = false;
+}
+
+void ATPSBaseCharacter::OnDeathHandle()
+{
+	//PlayAnimMontage(DeathAnimMontage);
+
+	this->GetCharacterMovement()->DisableMovement();
+	SetLifeSpan(LifeSpanOnDeath);
+
+	if (Controller) // in Controller.h
+	{
+		//Controller takes control of the SpectatorPawn
+		Controller->ChangeState(NAME_Spectating);
+	}
+
+	//Sets the collision response to be the same for all channels
+	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
+	WeaponComponent->StopFire();
+
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetMesh()->SetSimulatePhysics(true);
+}
+
+void ATPSBaseCharacter::OnHealthChangedHandle(float Health, float HealthDelta) const
+{
+	HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
+}
+
+void ATPSBaseCharacter::OnGroundLanded(const FHitResult& Hit)
+{
+	//falling velocity
+	const auto FallVelocityZ = -GetVelocity().Z;
+	UE_LOG(LogBaseCharacter, Display, TEXT("On landed: %.0f"), FallVelocityZ);
+
+	if (FallVelocityZ < LandedDamageVelocity.X) return;
+
+	const auto FinalFallDamage = FMath::GetMappedRangeValueClamped(LandedDamageVelocity, LandedDamage, FallVelocityZ);
+	UE_LOG(LogBaseCharacter, Display, TEXT("Final Fall Damage: %.0f"), FinalFallDamage);
+	TakeDamage(FinalFallDamage, FDamageEvent {}, nullptr, nullptr);
 }

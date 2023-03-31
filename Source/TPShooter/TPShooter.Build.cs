@@ -4,22 +4,46 @@ using UnrealBuildTool;
 
 public class TPShooter : ModuleRules
 {
-	public TPShooter(ReadOnlyTargetRules Target) : base(Target)
-	{
-		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
+    public TPShooter(ReadOnlyTargetRules Target) : base(Target)
+    {
+        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+        PublicDependencyModuleNames.AddRange(new string[]
+        {
+            "Core", 
+            "CoreUObject", 
+            "Engine", 
+            "InputCore",
+            "Niagara",
+            "PhysicsCore",
+            "AIModule",
+            "GameplayTasks",
+            "NavigationSystem"
+        });
 
-		PublicIncludePaths.AddRange(new string[] { "TPShooter/Public/Player", "TPShooter/Public/Components", "TPShooter/Public/Dev" });
+        PrivateDependencyModuleNames.AddRange(new string[] { });
 
-		// Uncomment if you are using Slate UI
-		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
-		
-		// Uncomment if you are using online features
-		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
+        PublicIncludePaths.AddRange(new string[]
+        {
+            "TPShooter/Public/Player", 
+            "TPShooter/Public/Components", 
+            "TPShooter/Public/Dev",
+            "TPShooter/Public/Weapon",
+            "TPShooter/Public/UI",
+            "TPShooter/Public/Animations",
+            "TPShooter/Public/Pickup",
+            "TPShooter/Public/Weapon/Components",
+            "TPShooter/Public/AI",
+            "TPShooter/Public/AI/Tasks",
+            "TPShooter/Public/AI/Services"
+        });
 
-		// To include OnlineSubsystemSteam, add it to the plugins section in your uproject file with the Enabled attribute set to true
-	}
+        // Uncomment if you are using Slate UI
+        // PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
+
+        // Uncomment if you are using online features
+        // PrivateDependencyModuleNames.Add("OnlineSubsystem");
+
+        // To include OnlineSubsystemSteam, add it to the plugins section in your uproject file with the Enabled attribute set to true
+    }
 }

@@ -1,29 +1,99 @@
 // Third Player Shooter, All Rights Reserved
 
-
 #include "Components/TPSHealthComponent.h"
 #include "GameFramework/Actor.h"
+#include "GameFramework/Pawn.h"
+#include "GameFramework/Controller.h"
+#include "Dev/TPSFireDamageType.h"
+#include "Dev/TPSIceDamageType.h"
+#include "Engine/World.h"
+#include "TimerManager.h"
+#include "Camera/CameraShakeBase.h"
+
+DEFINE_LOG_CATEGORY_STATIC(LogHealthComponent, All, All)
+
+void UTPSHealthComponent::HealUpdate()
+{
+	SetHealth(Health + HealModifier);
+
+	if (IsHealthFull() && GetWorld())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(HealTimerHandle);
+	}
+}
+
+void UTPSHealthComponent::SetHealth(float NewHealth)
+{
+	const float NextHealth = FMath::Clamp(NewHealth, 0.0f, MaxHealth);
+	const float HealthDelta = NextHealth - Health;
+	
+	Health = NextHealth;
+	OnHealthChanged.Broadcast(Health, HealthDelta);
+}
+
+void UTPSHealthComponent::PlayCameraShake()
+{
+	if (IsDead()) return;
+
+	const APawn* Player = Cast<APawn>(GetOwner());
+	if (!Player) return;
+
+	const APlayerController* Controller = Player->GetController<APlayerController>();
+	if (!Controller || !Controller->PlayerCameraManager) return;
+
+	Controller->PlayerCameraManager->StartCameraShake(CameraShake);
+}
 
 UTPSHealthComponent::UTPSHealthComponent()
 {
-
 	PrimaryComponentTick.bCanEverTick = false;
-
 }
 
-// Called when the game starts
+bool UTPSHealthComponent::TryToAddHealth(float HealthAmount)
+{
+	if (IsDead() || IsHealthFull()) return false;
+
+	SetHealth(Health + HealthAmount);
+	return true;
+}
+
+bool UTPSHealthComponent::IsHealthFull() const
+{
+	return FMath::IsNearlyEqual(Health, MaxHealth);
+}
+
 void UTPSHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Health = MaxHealth;
+	check(MaxHealth > 0);
+	SetHealth(MaxHealth);
 
-	//params: 1. указатель на текущий instance | 2. функция-подписчик
-	this->GetOwner()->OnTakeAnyDamage.AddDynamic(this, &UTPSHealthComponent::OnTakeAnyDamageHandle);
+	AActor* ComponentOwner = this->GetOwner();
+	if (ComponentOwner)
+	{
+		ComponentOwner->OnTakeAnyDamage.AddDynamic(this, &UTPSHealthComponent::OnTakeAnyDamageHandle);
+	}
 }
 
-
-void UTPSHealthComponent::OnTakeAnyDamageHandle(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
+void UTPSHealthComponent::OnTakeAnyDamageHandle(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
+                                                AController* InstigatedBy, AActor* DamageCauser)
 {
-	Health -= Damage;
+	if (Damage <= 0.0f || IsDead() || !GetWorld()) return;
+
+	SetHealth(Health - Damage);
+
+	GetWorld()->GetTimerManager().ClearTimer(HealTimerHandle);
+
+	if (IsDead())
+	{
+		OnDeath.Broadcast();
+	}
+	else if (AutoHeal)
+	{
+		GetWorld()->GetTimerManager().SetTimer(HealTimerHandle, this, &UTPSHealthComponent::HealUpdate, HealUpdateTime,
+		                                       true, HealDelay);
+	}
+
+	PlayCameraShake();
 }

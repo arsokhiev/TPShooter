@@ -6,12 +6,9 @@
 #include "GameFramework/PlayerController.h"
 #include "TPSPlayerController.generated.h"
 
-/**
- *
- */
 UCLASS()
 class TPSHOOTER_API ATPSPlayerController : public APlayerController
 {
 	GENERATED_BODY()
-
+	
 };

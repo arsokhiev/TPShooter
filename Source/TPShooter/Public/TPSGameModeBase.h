@@ -16,4 +16,6 @@ class TPSHOOTER_API ATPSGameModeBase : public AGameModeBase
 
 public:
 	ATPSGameModeBase();
+
+
 };

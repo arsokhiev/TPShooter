@@ -6,9 +6,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "TPSCharacterMovementComponent.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class TPSHOOTER_API UTPSCharacterMovementComponent : public UCharacterMovementComponent
 {
@@ -16,8 +13,8 @@ class TPSHOOTER_API UTPSCharacterMovementComponent : public UCharacterMovementCo
 
 public:
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement", meta = (ClampMin = "1.5", ClampMax = "10.0"))
-	float RunModifier = 2.0;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement", meta = (ClampMin = "1.5", ClampMax = "10.0"));
+	float RunModifier = 2.0f;
 
 	virtual float GetMaxSpeed() const override;
 	
