@@ -4,8 +4,10 @@
 #include "AI/TPSAICharacter.h"
 #include "TPSAIController.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/TPSAIWeaponComponent.h"
 
-ATPSAICharacter::ATPSAICharacter(const FObjectInitializer& ObjInit) : ATPSBaseCharacter(ObjInit)
+ATPSAICharacter::ATPSAICharacter(const FObjectInitializer& ObjInit)
+	: Super(ObjInit.SetDefaultSubobjectClass<UTPSAIWeaponComponent>("WeaponComponent"))
 {
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	AIControllerClass = ATPSAIController::StaticClass();

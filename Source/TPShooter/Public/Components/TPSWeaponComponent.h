@@ -16,30 +16,19 @@ class TPSHOOTER_API UTPSWeaponComponent : public UActorComponent
 
 private:
 	UPROPERTY()
-	ATPSBaseWeapon* CurrentWeapon = nullptr;
-
-	UPROPERTY()
-	TArray<ATPSBaseWeapon*> Weapons;
-
-	UPROPERTY()
 	UAnimMontage* CurrentReloadAnimMontage = nullptr;
-
-	int32 CurrentWeaponIndex = 0;
 	
 	bool EquipAnimInProgress = false;
 	bool ReloadAnimInProgress = false;
 
 	void SpawnWeapons();
 	void AttachWeaponToSocket(ATPSBaseWeapon* Weapon, USceneComponent* SceneComponent, const FName& SocketName);
-	void EquipWeapon(int32 WeaponIndex);
 	
 	void PlayAnimMontage(UAnimMontage* AnimMontage);
 	void InitAnimations();
 	void OnEquipFinished(USkeletalMeshComponent* MeshComp);
 	void OnReloadFinished(USkeletalMeshComponent* MeshComp);
-
-	bool CanFire();
-	bool CanEquip() const;
+	
 	bool CanReload() const;
 
 	void OnEmptyClip(ATPSBaseWeapon* AmmoEmptyWeapon);
@@ -48,10 +37,10 @@ private:
 public:
 	UTPSWeaponComponent();
 
-	void StartFire();
+	virtual void StartFire();
 	void StopFire();
 
-	void NextWeapon();
+	virtual void NextWeapon();
 
 	void Reload();
 
@@ -72,7 +61,19 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	UAnimMontage* EquipAnimMontage;
+
+	UPROPERTY()
+	ATPSBaseWeapon* CurrentWeapon = nullptr;
+
+	UPROPERTY()
+	TArray<ATPSBaseWeapon*> Weapons;
+	
+	int32 CurrentWeaponIndex = 0;
 	
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+	bool CanFire();
+	bool CanEquip() const;
+	void EquipWeapon(int32 WeaponIndex);
 };
