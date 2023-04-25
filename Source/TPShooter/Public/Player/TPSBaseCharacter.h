@@ -28,7 +28,6 @@ private:
 	void OnStartRunning();
 	void OnStopRunning();
 
-	void OnDeathHandle();
 	void OnHealthChangedHandle(float Health, float HealthDelta) const;
 
 	UFUNCTION()
@@ -70,6 +69,8 @@ protected:
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	virtual void OnDeathHandle();
 
 public:
 	// Called every frame
