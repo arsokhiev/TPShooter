@@ -8,6 +8,7 @@
 #include "TPSWeaponComponent.generated.h"
 
 class ATPSBaseWeapon;
+class UCameraShakeBase;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class TPSHOOTER_API UTPSWeaponComponent : public UActorComponent
@@ -24,7 +25,7 @@ private:
 	void SpawnWeapons();
 	void AttachWeaponToSocket(ATPSBaseWeapon* Weapon, USceneComponent* SceneComponent, const FName& SocketName);
 	
-	void PlayAnimMontage(UAnimMontage* AnimMontage);
+	void PlayAnimMontage(UAnimMontage* AnimMontage) const;
 	void InitAnimations();
 	void OnEquipFinished(USkeletalMeshComponent* MeshComp);
 	void OnReloadFinished(USkeletalMeshComponent* MeshComp);
@@ -33,6 +34,8 @@ private:
 
 	void OnEmptyClip(ATPSBaseWeapon* AmmoEmptyWeapon);
 	void ChangeClip();
+
+	void PlayCameraShake() const;
 
 public:
 	UTPSWeaponComponent();

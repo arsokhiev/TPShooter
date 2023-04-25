@@ -2,14 +2,16 @@
 
 
 #include "Components/TPSWeaponComponent.h"
-
 #include "TPSBaseCharacter.h"
+#include "TPSHealthComponent.h"
+#include "TPSUtils.h"
 #include "Weapon/TPSBaseWeapon.h"
 #include "GameFramework/Character.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Animations/TPSEquipFinishedAnimNotify.h"
 #include "Animations/TPSReloadFinishedAnimNotify.h"
 #include "Animations/AnimUtils.h"
+#include "Camera/CameraShakeBase.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogWeaponComponent, All, All)
 
@@ -55,6 +57,7 @@ void UTPSWeaponComponent::SpawnWeapons()
 		if (!Weapon) continue;
 
 		Weapon->OnClipEmpty.AddUObject(this, &UTPSWeaponComponent::OnEmptyClip);
+		Weapon->OnShootMade.AddUObject(this, &UTPSWeaponComponent::PlayCameraShake);
 		Weapon->SetOwner(Character);
 		Weapons.Add(Weapon);
 
@@ -103,7 +106,7 @@ void UTPSWeaponComponent::EquipWeapon(int32 WeaponIndex)
 	PlayAnimMontage(EquipAnimMontage);
 }
 
-void UTPSWeaponComponent::PlayAnimMontage(UAnimMontage* AnimMontage)
+void UTPSWeaponComponent::PlayAnimMontage(UAnimMontage* AnimMontage) const
 {
 	ACharacter* Character = Cast<ATPSBaseCharacter>(GetOwner());
 	if (!Character || !GetWorld()) return;
@@ -113,8 +116,7 @@ void UTPSWeaponComponent::PlayAnimMontage(UAnimMontage* AnimMontage)
 
 void UTPSWeaponComponent::InitAnimations()
 {
-	auto EquipFinishedNotify = AnimUtils::FindNotifyByClass<UTPSEquipFinishedAnimNotify>(EquipAnimMontage);
-	if (EquipFinishedNotify)
+	if (const auto EquipFinishedNotify = AnimUtils::FindNotifyByClass<UTPSEquipFinishedAnimNotify>(EquipAnimMontage))
 	{
 		EquipFinishedNotify->OnNotified.AddUObject(this, &UTPSWeaponComponent::OnEquipFinished);
 	}
@@ -204,6 +206,19 @@ void UTPSWeaponComponent::ChangeClip()
 	
 	ReloadAnimInProgress = true;
 	PlayAnimMontage(CurrentReloadAnimMontage);
+}
+
+void UTPSWeaponComponent::PlayCameraShake() const
+{
+	const auto Character = Cast<ATPSBaseCharacter>(GetOwner());
+	if (!Character) return;
+	if (TPSUtils::GetTPSPlayerComponent<UTPSHealthComponent>(Character)->IsDead()) return;
+
+	const auto Controller = Character->GetController<APlayerController>();
+	if (!Controller || !Controller->PlayerCameraManager) return;
+
+	if (!CurrentWeapon->CameraShake) return;
+	Controller->PlayerCameraManager->StartCameraShake(CurrentWeapon->CameraShake);
 }
 
 void UTPSWeaponComponent::StartFire()

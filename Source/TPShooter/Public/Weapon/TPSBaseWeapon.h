@@ -20,6 +20,10 @@ public:
 	ATPSBaseWeapon();
 
 	FOnClipEmptySignature OnClipEmpty;
+	FOnShootMade OnShootMade;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
+	TSubclassOf<UCameraShakeBase> CameraShake;
 
 	virtual void StartFire();
 	virtual void StopFire();

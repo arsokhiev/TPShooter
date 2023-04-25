@@ -43,6 +43,7 @@ void ATPSBaseWeapon::MakeShoot()
 	if (Cast<ACharacter>(GetOwner())->IsPlayerControlled())
 	{
 		PlayShootFeedback();
+		OnShootMade.Broadcast();
 	}
 }
 

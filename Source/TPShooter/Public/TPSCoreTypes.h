@@ -20,6 +20,7 @@ struct FWeaponData
 
 //weapon
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnClipEmptySignature, ATPSBaseWeapon*);
+DECLARE_MULTICAST_DELEGATE(FOnShootMade);
 
 USTRUCT(BlueprintType)
 struct FAmmoData
