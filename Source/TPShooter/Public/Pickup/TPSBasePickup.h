@@ -28,10 +28,13 @@ protected:
 
 public:	
 	virtual void Tick(float DeltaTime) override;
+	bool CouldBeTaken() const;
 
 private:
 	float RotationYaw = 0.0f;
 	void GenerateRotationYaw();
+
+	FTimerHandle RespawnTimerHandle;
 	
 	virtual bool GivePickupTo(APawn* PlayerPawn);
 	

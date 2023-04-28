@@ -43,6 +43,11 @@ void ATPSBasePickup::Tick(float DeltaTime)
 	AddActorLocalRotation(FRotator(0.0f, RotationYaw * DeltaTime * 100, 0.0f));
 }
 
+bool ATPSBasePickup::CouldBeTaken() const
+{
+	return !GetWorldTimerManager().IsTimerActive(RespawnTimerHandle);
+}
+
 void ATPSBasePickup::GenerateRotationYaw()
 {
 	const auto Direction = FMath::RandBool() ? 1.0f : -1.0f;
@@ -62,7 +67,6 @@ void ATPSBasePickup::PickupWasTaken()
 		GetRootComponent()->SetVisibility(false, true);
 	}
 
-	FTimerHandle RespawnTimerHandle;
 	GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ATPSBasePickup::Respawn, RespawnTime);
 }
 
