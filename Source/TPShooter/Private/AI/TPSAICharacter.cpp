@@ -2,7 +2,6 @@
 
 
 #include "AI/TPSAICharacter.h"
-
 #include "BrainComponent.h"
 #include "AI/TPSAIController.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -11,7 +10,7 @@
 ATPSAICharacter::ATPSAICharacter(const FObjectInitializer& ObjInit)
 	: Super(ObjInit.SetDefaultSubobjectClass<UTPSAIWeaponComponent>("WeaponComponent"))
 {
-	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+	AutoPossessAI = EAutoPossessAI::Disabled;
 	AIControllerClass = ATPSAIController::StaticClass();
 
 	bUseControllerRotationYaw = false;

@@ -105,6 +105,14 @@ float ATPSBaseCharacter::GetMovementDirection() const
 	return CrossProduct.IsZero() ? AngleDegrees : AngleDegrees * ZSign;
 }
 
+void ATPSBaseCharacter::SetPlayerColor(const FLinearColor& Color)
+{
+	const auto MaterialInstance = GetMesh()->CreateAndSetMaterialInstanceDynamic(0);
+	if (!MaterialInstance) return;
+
+	MaterialInstance->SetVectorParameterValue(MaterialColorName, Color);
+}
+
 void ATPSBaseCharacter::MoveForward(float Scale)
 {
 	IsMovingForward = Scale > 0.0f;
