@@ -8,6 +8,7 @@
 #include "Dev/TPSIceDamageType.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
+#include "TPSUtils.h"
 #include "Camera/CameraShakeBase.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogHealthComponent, All, All)
@@ -26,7 +27,7 @@ void UTPSHealthComponent::SetHealth(float NewHealth)
 {
 	const float NextHealth = FMath::Clamp(NewHealth, 0.0f, MaxHealth);
 	const float HealthDelta = NextHealth - Health;
-	
+
 	Health = NextHealth;
 	OnHealthChanged.Broadcast(Health, HealthDelta);
 }
@@ -79,6 +80,11 @@ void UTPSHealthComponent::BeginPlay()
 void UTPSHealthComponent::OnTakeAnyDamageHandle(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
                                                 AController* InstigatedBy, AActor* DamageCauser)
 {
+	// no teammate damage
+	const auto Controller = Cast<APawn>(GetOwner())->GetController();
+	if (!Controller || !InstigatedBy) return;
+	if (TPSUtils::AreTeammates(Controller, InstigatedBy)) return;
+
 	if (Damage <= 0.0f || IsDead() || !GetWorld()) return;
 
 	SetHealth(Health - Damage);
