@@ -18,7 +18,7 @@ void ATPSRifleWeapon::MakeDamage(const FHitResult& HitResult)
 	const auto DamageTaker = HitResult.GetActor();
 	if (!DamageTaker) return;
 
-	DamageTaker->TakeDamage(DamageAmount, FDamageEvent{}, GetPlayerController(), this);
+	DamageTaker->TakeDamage(DamageAmount, FDamageEvent{}, GetController(), this);
 }
 
 void ATPSRifleWeapon::PlayShootFeedback()
@@ -52,6 +52,12 @@ void ATPSRifleWeapon::SpawnTraceFX(const FVector& TraceStart, const FVector& Tra
 	{
 		TraceFXComponent->SetNiagaraVariableVec3(TraceTargetName, TraceEnd);
 	}
+}
+
+AController* ATPSRifleWeapon::GetController() const
+{
+	const auto Pawn = Cast<APawn>(GetOwner());
+	return Pawn ? Pawn->GetController() : nullptr;
 }
 
 ATPSRifleWeapon::ATPSRifleWeapon()

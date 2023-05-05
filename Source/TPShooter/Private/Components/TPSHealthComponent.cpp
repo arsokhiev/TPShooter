@@ -8,6 +8,7 @@
 #include "Dev/TPSIceDamageType.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
+#include "TPSGameModeBase.h"
 #include "TPSUtils.h"
 #include "Camera/CameraShakeBase.h"
 
@@ -43,6 +44,19 @@ void UTPSHealthComponent::PlayCameraShake()
 	if (!Controller || !Controller->PlayerCameraManager) return;
 
 	Controller->PlayerCameraManager->StartCameraShake(CameraShake);
+}
+
+void UTPSHealthComponent::Killed(AController* KillerController)
+{
+	if (!GetWorld()) return;
+
+	const auto GameMode = Cast<ATPSGameModeBase>(GetWorld()->GetAuthGameMode());
+	if (!GameMode) return;
+
+	const auto Pawn = Cast<APawn>(GetOwner());
+	const auto VictimController = Pawn ? Pawn->GetController() : nullptr;
+
+	GameMode->Killed(KillerController, VictimController);
 }
 
 UTPSHealthComponent::UTPSHealthComponent()
@@ -93,6 +107,7 @@ void UTPSHealthComponent::OnTakeAnyDamageHandle(AActor* DamagedActor, float Dama
 
 	if (IsDead())
 	{
+		Killed(InstigatedBy);
 		OnDeath.Broadcast();
 	}
 	else if (AutoHeal)
