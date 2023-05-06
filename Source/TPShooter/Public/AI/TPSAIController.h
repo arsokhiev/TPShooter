@@ -7,6 +7,7 @@
 #include "TPSAIController.generated.h"
 
 class UTPSAIPerceptionComponent;
+class UTPSRespawnComponent;
 
 UCLASS()
 class TPSHOOTER_API ATPSAIController : public AAIController
@@ -20,6 +21,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	UTPSAIPerceptionComponent* AIPerceptionComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	UTPSRespawnComponent* RespawnComponent;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	FName FocusOnKeyName = "EnemyActor";
 	

@@ -7,6 +7,8 @@
 #include "TPSGameHUD.h"
 #include "TPSAIController.h"
 #include "TPSPlayerState.h"
+#include "TPSRespawnComponent.h"
+#include "TPSUtils.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogTPSGameModeBase, All, All);
 
@@ -52,6 +54,13 @@ void ATPSGameModeBase::Killed(AController* KillerController, AController* Victim
 	{
 		VictimPlayerState->AddDeath();
 	}
+
+	StartRespawn(VictimController);
+}
+
+void ATPSGameModeBase::RespawnRequest(AController* Controller)
+{
+	ResetOnePlayer(Controller);
 }
 
 void ATPSGameModeBase::SpawnBots()
@@ -174,4 +183,15 @@ void ATPSGameModeBase::LogPlayerInfo()
 
 		PlayerState->LogInfo();
 	}
+}
+
+void ATPSGameModeBase::StartRespawn(AController* Controller)
+{	
+	const auto RespawnAvailable = RoundCountDown > GameData.MinRoundTimeForRespawn + GameData.RespawnTime;
+	if (!RespawnAvailable) return;
+	
+	const auto RespawnComponent = TPSUtils::GetTPSPlayerComponent<UTPSRespawnComponent>(Controller);
+	if (!RespawnComponent) return;
+
+	RespawnComponent->Respawn(GameData.RespawnTime);
 }
