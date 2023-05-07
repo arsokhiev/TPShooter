@@ -2,6 +2,7 @@
 
 
 #include "TPSGameModeBase.h"
+#include "EngineUtils.h"
 #include "TPSBaseCharacter.h"
 #include "TPSPlayerController.h"
 #include "TPSGameHUD.h"
@@ -99,8 +100,7 @@ void ATPSGameModeBase::GameTimerUpdate()
 		}
 		else
 		{
-			UE_LOG(LogTPSGameModeBase, Display, TEXT("========== GAME OVER =========="));
-			LogPlayerInfo();
+			GameOver();
 		}
 	}
 }
@@ -194,4 +194,19 @@ void ATPSGameModeBase::StartRespawn(AController* Controller)
 	if (!RespawnComponent) return;
 
 	RespawnComponent->Respawn(GameData.RespawnTime);
+}
+
+void ATPSGameModeBase::GameOver()
+{
+	UE_LOG(LogTPSGameModeBase, Display, TEXT("========== GAME OVER =========="));
+	LogPlayerInfo();
+
+	for (auto Pawn : TActorRange<APawn>(GetWorld()))
+	{
+		if (Pawn)
+		{
+			Pawn->TurnOff();
+			Pawn->DisableInput(nullptr);
+		}
+	}
 }
