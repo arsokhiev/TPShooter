@@ -44,11 +44,12 @@ bool UTPSPlayerHUDWidget::IsPlayerSpectating() const
 
 bool UTPSPlayerHUDWidget::Initialize()
 {
-	if (UTPSHealthComponent* const HealthComponent = TPSUtils::GetTPSPlayerComponent<UTPSHealthComponent>(GetOwningPlayerPawn()))
+	if (GetOwningPlayer())
 	{
-		HealthComponent->OnHealthChanged.AddUObject(this, &UTPSPlayerHUDWidget::OnHealthChanged);
+		GetOwningPlayer()->GetOnNewPawnNotifier().AddUObject(this, &UTPSPlayerHUDWidget::OnNewPawnHandle);
+		//Explicitly called, because on the first spawn, the OnNewPawn delegate is not broadcast
+		OnNewPawnHandle(GetOwningPlayerPawn());
 	}
-	
 	return Super::Initialize();
 }
 
@@ -57,5 +58,13 @@ void UTPSPlayerHUDWidget::OnHealthChanged(float Health, float HealthDelta)
 	if (HealthDelta < 0.0f)
 	{
 		OnTakeDamage();
+	}
+}
+
+void UTPSPlayerHUDWidget::OnNewPawnHandle(APawn* NewPawn)
+{
+	if (UTPSHealthComponent* const HealthComponent = TPSUtils::GetTPSPlayerComponent<UTPSHealthComponent>(NewPawn))
+	{
+		HealthComponent->OnHealthChanged.AddUObject(this, &UTPSPlayerHUDWidget::OnHealthChanged);
 	}
 }
