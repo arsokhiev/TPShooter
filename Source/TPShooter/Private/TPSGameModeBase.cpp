@@ -7,6 +7,7 @@
 #include "TPSPlayerController.h"
 #include "TPSGameHUD.h"
 #include "TPSAIController.h"
+#include "TPSPlayerCharacter.h"
 #include "TPSPlayerState.h"
 #include "TPSRespawnComponent.h"
 #include "TPSUtils.h"
@@ -15,7 +16,7 @@ DEFINE_LOG_CATEGORY_STATIC(LogTPSGameModeBase, All, All);
 
 ATPSGameModeBase::ATPSGameModeBase()
 {
-	DefaultPawnClass = ATPSBaseCharacter::StaticClass();
+	DefaultPawnClass = ATPSPlayerCharacter::StaticClass();
 	PlayerControllerClass = ATPSPlayerController::StaticClass();
 	HUDClass = ATPSGameHUD::StaticClass();
 	PlayerStateClass = ATPSPlayerState::StaticClass();

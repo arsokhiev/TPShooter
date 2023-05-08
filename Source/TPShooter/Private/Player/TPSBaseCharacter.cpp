@@ -3,11 +3,7 @@
 
 #include "Player/TPSBaseCharacter.h"
 #include "Components/TPSHealthComponent.h"
-#include "Camera/CameraComponent.h"
-#include "Components/InputComponent.h"
-#include "GameFramework/SpringArmComponent.h"
 #include "Components/TPSCharacterMovementComponent.h"
-#include "Components/TextRenderComponent.h"
 #include "Engine/DamageEvents.h"
 #include "PhysicsProxy/GeometryCollectionPhysicsProxy.h"
 #include "GameFramework/Controller.h"
@@ -16,26 +12,12 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogBaseCharacter, All, All)
 
-// Sets default values
 ATPSBaseCharacter::ATPSBaseCharacter(const FObjectInitializer& ObjInit)
 	: ACharacter(ObjInit.SetDefaultSubobjectClass<UTPSCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
-	SpringArmComponent->SetupAttachment(this->GetRootComponent());
-	SpringArmComponent->bUsePawnControlRotation = true;
-	SpringArmComponent->SocketOffset = FVector(0.0f, 100.0f, 80.0f);
-	
-	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
-	CameraComponent->SetupAttachment(SpringArmComponent);
-
 	HealthComponent = CreateDefaultSubobject<UTPSHealthComponent>("HealthComponent");
-	
-	HealthTextComponent = CreateDefaultSubobject<UTextRenderComponent>("HealthTextComponent");
-	HealthTextComponent->SetupAttachment(GetRootComponent());
-	HealthTextComponent->SetOwnerNoSee(true);
-
 	WeaponComponent = CreateDefaultSubobject<UTPSWeaponComponent>("WeaponComponent");
 }	
 
@@ -44,7 +26,6 @@ void ATPSBaseCharacter::BeginPlay()
 	ACharacter::BeginPlay();
 
 	check(HealthComponent);
-	check(HealthTextComponent);
 	check(GetCharacterMovement());
 	check(GetMesh());
 
@@ -60,34 +41,9 @@ void ATPSBaseCharacter::Tick(float DeltaTime)
 	ACharacter::Tick(DeltaTime);
 }
 
-void ATPSBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	ACharacter::SetupPlayerInputComponent(PlayerInputComponent);
-
-	check(PlayerInputComponent);
-	check(WeaponComponent);
-
-	PlayerInputComponent->BindAxis("MoveForward", this, &ATPSBaseCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &ATPSBaseCharacter::MoveRight);
-
-	PlayerInputComponent->BindAxis("LookUp", this, &ATPSBaseCharacter::AddControllerPitchInput);
-	PlayerInputComponent->BindAxis("TurnAround", this, &ATPSBaseCharacter::AddControllerYawInput);
-
-	PlayerInputComponent->BindAction("Jump", EInputEvent::IE_Pressed, this, &ATPSBaseCharacter::Jump);
-	
-	PlayerInputComponent->BindAction("Run", EInputEvent::IE_Pressed, this, &ATPSBaseCharacter::OnStartRunning);
-	PlayerInputComponent->BindAction("Run", EInputEvent::IE_Released, this, &ATPSBaseCharacter::OnStopRunning);
-
-	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Pressed, WeaponComponent, &UTPSWeaponComponent::StartFire);
-	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Released, WeaponComponent, &UTPSWeaponComponent::StopFire);
-
-	PlayerInputComponent->BindAction("NextWeapon", EInputEvent::IE_Pressed, WeaponComponent, &UTPSWeaponComponent::NextWeapon);
-	PlayerInputComponent->BindAction("Reload", EInputEvent::IE_Pressed, WeaponComponent, &UTPSWeaponComponent::Reload);
-}
-
 bool ATPSBaseCharacter::IsRunning() const
 {
-	return WantsToRun && IsMovingForward && !IsMovingSideward && !this->GetVelocity().IsZero();
+	return false;
 }
 
 float ATPSBaseCharacter::GetMovementDirection() const
@@ -113,42 +69,12 @@ void ATPSBaseCharacter::SetPlayerColor(const FLinearColor& Color)
 	MaterialInstance->SetVectorParameterValue(MaterialColorName, Color);
 }
 
-void ATPSBaseCharacter::MoveForward(float Scale)
-{
-	IsMovingForward = Scale > 0.0f;
-	if (Scale == 0.0f) return;
-	AddMovementInput(this->GetActorForwardVector(), Scale);
-}
-
-void ATPSBaseCharacter::MoveRight(float Scale)
-{
-	IsMovingSideward = Scale > 0.0f || Scale < 0.0f;
-	if (Scale == 0.0f) return;
-	AddMovementInput(this->GetActorRightVector(), Scale);
-}
-
-void ATPSBaseCharacter::OnStartRunning()
-{
-	WantsToRun = true;
-}
-
-void ATPSBaseCharacter::OnStopRunning()
-{
-	WantsToRun = false;
-}
-
 void ATPSBaseCharacter::OnDeathHandle()
 {
 	//PlayAnimMontage(DeathAnimMontage);
 
 	this->GetCharacterMovement()->DisableMovement();
 	SetLifeSpan(LifeSpanOnDeath);
-
-	if (Controller) // in Controller.h
-	{
-		//Controller takes control of the SpectatorPawn
-		Controller->ChangeState(NAME_Spectating);
-	}
 
 	//Sets the collision response to be the same for all channels
 	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
@@ -161,7 +87,7 @@ void ATPSBaseCharacter::OnDeathHandle()
 
 void ATPSBaseCharacter::OnHealthChangedHandle(float Health, float HealthDelta) const
 {
-	HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
+	
 }
 
 void ATPSBaseCharacter::OnGroundLanded(const FHitResult& Hit)
