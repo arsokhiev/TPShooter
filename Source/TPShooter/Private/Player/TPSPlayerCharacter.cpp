@@ -6,6 +6,8 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/TPSWeaponComponent.h"
+#include "Components/SphereComponent.h"
+#include "Components/CapsuleComponent.h"
 
 ATPSPlayerCharacter::ATPSPlayerCharacter(const FObjectInitializer& ObjInit) : Super(ObjInit)
 {
@@ -18,12 +20,27 @@ ATPSPlayerCharacter::ATPSPlayerCharacter(const FObjectInitializer& ObjInit) : Su
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
 	CameraComponent->SetupAttachment(SpringArmComponent);
+
+	CameraCollisionComponent = CreateDefaultSubobject<USphereComponent>("CameraCollisionComponent");
+	CameraCollisionComponent->SetupAttachment(CameraComponent);
+	CameraCollisionComponent->SetSphereRadius(10.0f);
+	CameraCollisionComponent->SetCollisionResponseToChannels(ECollisionResponse::ECR_Overlap);
+}
+
+void ATPSPlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	check(CameraCollisionComponent);
+
+	CameraCollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &ATPSPlayerCharacter::OnCameraCollisionBeginOverlap);
+	CameraCollisionComponent->OnComponentEndOverlap.AddDynamic(this, &ATPSPlayerCharacter::OnCameraCollisionEndOverlap);
 }
 
 void ATPSPlayerCharacter::OnDeathHandle()
 {
 	Super::OnDeathHandle();
-	
+
 	if (Controller) // in Controller.h
 	{
 		//Controller takes control of the SpectatorPawn
@@ -52,8 +69,7 @@ void ATPSPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Pressed, WeaponComponent, &UTPSWeaponComponent::StartFire);
 	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Released, WeaponComponent, &UTPSWeaponComponent::StopFire);
 
-	PlayerInputComponent->BindAction("NextWeapon", EInputEvent::IE_Pressed, WeaponComponent,
-	                                 &UTPSWeaponComponent::NextWeapon);
+	PlayerInputComponent->BindAction("NextWeapon", EInputEvent::IE_Pressed, WeaponComponent,&UTPSWeaponComponent::NextWeapon);
 	PlayerInputComponent->BindAction("Reload", EInputEvent::IE_Pressed, WeaponComponent, &UTPSWeaponComponent::Reload);
 }
 
@@ -84,4 +100,35 @@ void ATPSPlayerCharacter::OnStartRunning()
 void ATPSPlayerCharacter::OnStopRunning()
 {
 	WantsToRun = false;
+}
+
+void ATPSPlayerCharacter::OnCameraCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+                                                        UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+                                                        bool bFromSweep, const FHitResult& SweepResult)
+{
+	CheckCameraOverlap();
+}
+
+void ATPSPlayerCharacter::OnCameraCollisionEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+                                                      UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	CheckCameraOverlap();
+}
+
+void ATPSPlayerCharacter::CheckCameraOverlap()
+{
+	const auto bComponentsOverlap = CameraCollisionComponent->IsOverlappingComponent(GetCapsuleComponent());
+	GetMesh()->SetOwnerNoSee(bComponentsOverlap);
+
+	TArray<USceneComponent*> MeshChildren;
+	GetMesh()->GetChildrenComponents(true, MeshChildren);
+
+	for (auto MeshChild : MeshChildren)
+	{
+		const auto PrimitiveMeshChild = Cast<UPrimitiveComponent>(MeshChild);
+		if (PrimitiveMeshChild)
+		{
+			PrimitiveMeshChild->SetOwnerNoSee(bComponentsOverlap);
+		}
+	}
 }
