@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "TPSCoreTypes.h"
 #include "GameFramework/HUD.h"
 #include "TPSGameHUD.generated.h"
 
@@ -18,8 +19,17 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> PlayerHUDWidgetClass;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UUserWidget> PauseWidgetClass;
+
 	virtual void BeginPlay() override;
 
 private:
-	void DrawCrosshair();
+	UPROPERTY()
+	TMap<ETPSMatchState, UUserWidget*> GameWidgets;
+
+	UPROPERTY()
+	UUserWidget* CurrentWidget = nullptr;
+	
+	void OnMatchStateChangedHandle(ETPSMatchState State);
 };

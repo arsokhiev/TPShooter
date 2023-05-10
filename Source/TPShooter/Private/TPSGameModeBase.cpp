@@ -31,6 +31,8 @@ void ATPSGameModeBase::StartPlay()
 
 	CurrentRound = 1;
 	StartRound();
+
+	SetMatchState(ETPSMatchState::InProgress);
 }
 
 UClass* ATPSGameModeBase::GetDefaultPawnClassForController_Implementation(AController* InController)
@@ -63,6 +65,29 @@ void ATPSGameModeBase::Killed(AController* KillerController, AController* Victim
 void ATPSGameModeBase::RespawnRequest(AController* Controller)
 {
 	ResetOnePlayer(Controller);
+}
+
+bool ATPSGameModeBase::SetPause(APlayerController* PC, FCanUnpause CanUnpauseDelegate)
+{
+	const auto PauseSet = Super::SetPause(PC, CanUnpauseDelegate);
+	if (PauseSet)
+	{
+		SetMatchState(ETPSMatchState::Pause);
+	}
+	
+	return PauseSet;
+}
+
+bool ATPSGameModeBase::ClearPause()
+{
+	const auto PauseCleared = Super::ClearPause();
+
+	if (PauseCleared)
+	{
+		SetMatchState(ETPSMatchState::InProgress);
+	}
+	
+	return PauseCleared;
 }
 
 void ATPSGameModeBase::SpawnBots()
@@ -210,4 +235,14 @@ void ATPSGameModeBase::GameOver()
 			Pawn->DisableInput(nullptr);
 		}
 	}
+
+	SetMatchState(ETPSMatchState::GameOver);
+}
+
+void ATPSGameModeBase::SetMatchState(ETPSMatchState State)
+{
+	if (MatchState == State) return;
+
+	MatchState = State;
+	OnMatchStateChanged.Broadcast(MatchState);
 }

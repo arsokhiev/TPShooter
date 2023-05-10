@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "TPSCoreTypes.h"
 #include "TPSPlayerController.generated.h"
 
 class UTPSRespawnComponent;
@@ -19,4 +20,11 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	UTPSRespawnComponent* RespawnComponent;
+
+	virtual void BeginPlay() override;
+	virtual void SetupInputComponent() override;
+
+private:
+	void OnPauseGame();
+	void OnMatchStateChangedHandle(ETPSMatchState State);
 };

@@ -114,3 +114,15 @@ struct FGameData
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game", meta = (ClampMin = "3", ClampMax = "20"))
 	int32 MinRoundTimeForRespawn = 10;
 };
+
+//GameState
+UENUM(BlueprintType)
+enum class ETPSMatchState : uint8
+{
+	WaitingToStart = 0,
+	InProgress,
+	Pause,
+	GameOver
+};
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnMatchStateChangedSignature, ETPSMatchState);

@@ -2,34 +2,58 @@
 
 
 #include "UI/TPSGameHUD.h"
+#include "TPSGameModeBase.h"
 #include "Engine/Canvas.h"
 #include "Blueprint/UserWidget.h"
+
+DEFINE_LOG_CATEGORY_STATIC(LogTPSGameHUD, All, All);
 
 void ATPSGameHUD::DrawHUD()
 {
 	Super::DrawHUD();
-	//DrawCrosshair();
 }
 
 void ATPSGameHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
-	auto PlayerHUDWidget = CreateWidget<UUserWidget>(GetWorld(), PlayerHUDWidgetClass);
-	if (PlayerHUDWidget)
+	GameWidgets.Add(ETPSMatchState::InProgress, CreateWidget<UUserWidget>(GetWorld(), PlayerHUDWidgetClass));
+	GameWidgets.Add(ETPSMatchState::Pause, CreateWidget<UUserWidget>(GetWorld(), PauseWidgetClass));
+
+	for (auto GameWidgetPair : GameWidgets)
 	{
-		PlayerHUDWidget->AddToViewport();
+		const auto Widget = GameWidgetPair.Value;
+		if (!Widget) continue;
+		Widget->AddToViewport();
+		Widget->SetVisibility(ESlateVisibility::Hidden);
+	}
+	
+	if (GetWorld())
+	{
+		const auto GameMode = Cast<ATPSGameModeBase>(GetWorld()->GetAuthGameMode());
+		if (GameMode)
+		{
+			GameMode->OnMatchStateChanged.AddUObject(this, &ATPSGameHUD::OnMatchStateChangedHandle);
+		}
 	}
 }
 
-void ATPSGameHUD::DrawCrosshair()
+void ATPSGameHUD::OnMatchStateChangedHandle(ETPSMatchState State)
 {
-	const TInterval<float> Center(Canvas->SizeX * 0.5f, Canvas->SizeY * 0.5f);
+	if (CurrentWidget)
+	{
+		CurrentWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
 
-	const float HalfLineSize = 10.0f;
-	const float LineThickness = 2.0f;
-	const FLinearColor LineColor = FLinearColor::Green;
+	if (GameWidgets.Contains(State))
+	{
+		CurrentWidget = GameWidgets[State];
+	}
 
-	DrawLine(Center.Min - HalfLineSize, Center.Max, Center.Min + HalfLineSize, Center.Max, LineColor, LineThickness);
-	DrawLine(Center.Min, Center.Max - HalfLineSize, Center.Min, Center.Max + HalfLineSize, LineColor, LineThickness);
+	if (CurrentWidget)
+	{
+		CurrentWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+	
+	UE_LOG(LogTPSGameHUD, Display, TEXT("Match state changed: %s"), *UEnum::GetValueAsString(State));
 }
