@@ -88,6 +88,7 @@ void UTPSWeaponComponent::EquipWeapon(int32 WeaponIndex)
 	//skipped on first call as current weapon will be nullptr
 	if (CurrentWeapon)
 	{
+		DisableZoom();
 		StopFire();
 		AttachWeaponToSocket(CurrentWeapon, Character->GetMesh(), WeaponArmorySocketName);
 	}
@@ -287,4 +288,26 @@ bool UTPSWeaponComponent::NeedAmmo(TSubclassOf<ATPSBaseWeapon> WeaponType)
 		}
 	}
 	return false;
+}
+
+void UTPSWeaponComponent::EnableZoom()
+{
+	const auto Controller = Cast<APlayerController>(Cast<ACharacter>(GetOwner())->GetController());
+	if (!Controller) return;
+
+	const auto CameraManager = Controller->PlayerCameraManager;
+	if (!CameraManager) return;
+	
+	CameraManager->SetFOV(ZoomFOV);
+}
+
+void UTPSWeaponComponent::DisableZoom()
+{
+	const auto Controller = Cast<APlayerController>(Cast<ACharacter>(GetOwner())->GetController());
+	if (!Controller) return;
+	
+	const auto CameraManager = Controller->PlayerCameraManager;
+	if (!CameraManager) return;
+	
+	CameraManager->SetFOV(CameraManager->DefaultFOV);
 }

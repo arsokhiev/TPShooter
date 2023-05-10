@@ -80,6 +80,7 @@ void ATPSBaseCharacter::OnDeathHandle()
 	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 
 	WeaponComponent->StopFire();
+	WeaponComponent->DisableZoom();
 
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetMesh()->SetSimulatePhysics(true);

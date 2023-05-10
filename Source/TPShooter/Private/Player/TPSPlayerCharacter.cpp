@@ -71,6 +71,9 @@ void ATPSPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 	PlayerInputComponent->BindAction("NextWeapon", EInputEvent::IE_Pressed, WeaponComponent,&UTPSWeaponComponent::NextWeapon);
 	PlayerInputComponent->BindAction("Reload", EInputEvent::IE_Pressed, WeaponComponent, &UTPSWeaponComponent::Reload);
+
+	PlayerInputComponent->BindAction("Zoom", EInputEvent::IE_Pressed, WeaponComponent, &UTPSWeaponComponent::EnableZoom);
+	PlayerInputComponent->BindAction("Zoom", EInputEvent::IE_Released, WeaponComponent, &UTPSWeaponComponent::DisableZoom);
 }
 
 bool ATPSPlayerCharacter::IsRunning() const
