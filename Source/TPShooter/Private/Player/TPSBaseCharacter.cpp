@@ -71,8 +71,6 @@ void ATPSBaseCharacter::SetPlayerColor(const FLinearColor& Color)
 
 void ATPSBaseCharacter::OnDeathHandle()
 {
-	//PlayAnimMontage(DeathAnimMontage);
-
 	this->GetCharacterMovement()->DisableMovement();
 	SetLifeSpan(LifeSpanOnDeath);
 
@@ -80,7 +78,6 @@ void ATPSBaseCharacter::OnDeathHandle()
 	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 
 	WeaponComponent->StopFire();
-	WeaponComponent->DisableZoom();
 
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetMesh()->SetSimulatePhysics(true);

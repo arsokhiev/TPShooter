@@ -8,6 +8,7 @@
 #include "Components/TPSWeaponComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/TimelineComponent.h"
 
 ATPSPlayerCharacter::ATPSPlayerCharacter(const FObjectInitializer& ObjInit) : Super(ObjInit)
 {
@@ -32,20 +33,28 @@ void ATPSPlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	check(CameraCollisionComponent);
+	check(CurveFOV);
 
 	CameraCollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &ATPSPlayerCharacter::OnCameraCollisionBeginOverlap);
 	CameraCollisionComponent->OnComponentEndOverlap.AddDynamic(this, &ATPSPlayerCharacter::OnCameraCollisionEndOverlap);
+
+	AimingTimelineProgress.BindUFunction(CameraComponent, FName("SetFieldOfView"));
 }
 
 void ATPSPlayerCharacter::OnDeathHandle()
 {
 	Super::OnDeathHandle();
 
-	if (Controller) // in Controller.h
+	if (Controller)
 	{
-		//Controller takes control of the SpectatorPawn
 		Controller->ChangeState(NAME_Spectating);
 	}
+}
+
+void ATPSPlayerCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	AimingTimeline.TickTimeline(DeltaSeconds);
 }
 
 void ATPSPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -72,8 +81,8 @@ void ATPSPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	PlayerInputComponent->BindAction("NextWeapon", EInputEvent::IE_Pressed, WeaponComponent,&UTPSWeaponComponent::NextWeapon);
 	PlayerInputComponent->BindAction("Reload", EInputEvent::IE_Pressed, WeaponComponent, &UTPSWeaponComponent::Reload);
 
-	PlayerInputComponent->BindAction("Zoom", EInputEvent::IE_Pressed, WeaponComponent, &UTPSWeaponComponent::EnableZoom);
-	PlayerInputComponent->BindAction("Zoom", EInputEvent::IE_Released, WeaponComponent, &UTPSWeaponComponent::DisableZoom);
+	PlayerInputComponent->BindAction("Zoom", EInputEvent::IE_Pressed, this, &ATPSPlayerCharacter::EnableZoom);
+	PlayerInputComponent->BindAction("Zoom", EInputEvent::IE_Released, this, &ATPSPlayerCharacter::DisableZoom);
 }
 
 bool ATPSPlayerCharacter::IsRunning() const
@@ -134,4 +143,16 @@ void ATPSPlayerCharacter::CheckCameraOverlap()
 			PrimitiveMeshChild->SetOwnerNoSee(bComponentsOverlap);
 		}
 	}
+}
+
+void ATPSPlayerCharacter::EnableZoom()
+{
+	AimingTimeline.AddInterpFloat(CurveFOV, AimingTimelineProgress);
+	AimingTimeline.PlayFromStart();
+}
+
+void ATPSPlayerCharacter::DisableZoom()
+{
+	AimingTimeline.AddInterpFloat(CurveFOV, AimingTimelineProgress);
+	AimingTimeline.ReverseFromEnd();
 }

@@ -53,9 +53,6 @@ public:
 	bool TryToAddAmmo(TSubclassOf<ATPSBaseWeapon> WeaponType, int32 ClipsAmount);
 	bool NeedAmmo(TSubclassOf<ATPSBaseWeapon> WeaponType);
 
-	void EnableZoom();
-	void DisableZoom();
-
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	TArray<FWeaponData> WeaponData;
@@ -68,9 +65,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	UAnimMontage* EquipAnimMontage;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	float ZoomFOV = 50.0f;
 
 	UPROPERTY()
 	ATPSBaseWeapon* CurrentWeapon = nullptr;

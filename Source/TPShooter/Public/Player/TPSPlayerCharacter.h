@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/TimelineComponent.h"
 #include "Player/TPSBaseCharacter.h"
 #include "TPSPlayerCharacter.generated.h"
 
@@ -28,18 +29,27 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	USphereComponent* CameraCollisionComponent;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Aiming")
+	UCurveFloat* CurveFOV;
+
 	virtual void BeginPlay() override;
 	virtual void OnDeathHandle() override;
 
 public:
+	virtual void Tick(float DeltaSeconds) override;
+	
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual bool IsRunning() const override;
 
 private:
+	FOnTimelineFloat AimingTimelineProgress;
+	
 	bool WantsToRun = false;
 	bool IsMovingForward;
 	bool IsMovingSideward;
+
+	FTimeline AimingTimeline;
 
 	void MoveForward(float Scale);
 	void MoveRight(float Scale);
@@ -57,4 +67,7 @@ private:
 	                                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	void CheckCameraOverlap();
+
+	void EnableZoom();
+	void DisableZoom();
 };
