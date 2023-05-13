@@ -19,6 +19,7 @@ void ATPSGameHUD::BeginPlay()
 
 	GameWidgets.Add(ETPSMatchState::InProgress, CreateWidget<UUserWidget>(GetWorld(), PlayerHUDWidgetClass));
 	GameWidgets.Add(ETPSMatchState::Pause, CreateWidget<UUserWidget>(GetWorld(), PauseWidgetClass));
+	GameWidgets.Add(ETPSMatchState::GameOver, CreateWidget<UUserWidget>(GetWorld(), GameOverWidgetClass));
 
 	for (auto GameWidgetPair : GameWidgets)
 	{

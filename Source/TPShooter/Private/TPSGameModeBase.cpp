@@ -164,6 +164,8 @@ void ATPSGameModeBase::CreateTeamsInfo()
 		const auto PlayerState = Cast<ATPSPlayerState>(Controller->PlayerState);
 		if (!PlayerState) continue;
 
+		//PlayerState->SetPlayerName(Controller->IsPlayerController() ? "Player" : "Bot");
+		if (!Controller->IsPlayerController()) PlayerState->SetPlayerName(TeamID == 1 ? "Bot_1" : "Bot_2");
 		PlayerState->SetTeamID(TeamID);
 		PlayerState->SetTeamColor(DetermineColorByTeam(TeamID));
 		SetPlayerColor(Controller);
