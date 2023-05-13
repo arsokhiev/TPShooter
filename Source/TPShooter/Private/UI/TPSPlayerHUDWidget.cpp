@@ -42,15 +42,16 @@ bool UTPSPlayerHUDWidget::IsPlayerSpectating() const
 	return Controller && Controller->GetStateName() == NAME_Spectating;
 }
 
-bool UTPSPlayerHUDWidget::Initialize()
+void UTPSPlayerHUDWidget::NativeOnInitialized()
 {
+	Super::NativeOnInitialized();
+
 	if (GetOwningPlayer())
 	{
 		GetOwningPlayer()->GetOnNewPawnNotifier().AddUObject(this, &UTPSPlayerHUDWidget::OnNewPawnHandle);
 		//Explicitly called, because on the first spawn, the OnNewPawn delegate is not broadcast
 		OnNewPawnHandle(GetOwningPlayerPawn());
 	}
-	return Super::Initialize();
 }
 
 void UTPSPlayerHUDWidget::OnHealthChanged(float Health, float HealthDelta)

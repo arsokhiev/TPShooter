@@ -7,9 +7,13 @@
 #include "TPSPlayerStatRowWidget.h"
 #include "Components/VerticalBox.h"
 #include "TPSUtils.h"
+#include "Components/Button.h"
+#include "Kismet/GameplayStatics.h"
 
-bool UTPSGameOverWidget::Initialize()
+void UTPSGameOverWidget::NativeOnInitialized()
 {
+	Super::NativeOnInitialized();
+
 	if (GetWorld())
 	{
 		const auto GameMode = Cast<ATPSGameModeBase>(GetWorld()->GetAuthGameMode());
@@ -18,8 +22,11 @@ bool UTPSGameOverWidget::Initialize()
 			GameMode->OnMatchStateChanged.AddUObject(this, &UTPSGameOverWidget::OnMatchStateChangedHandle);
 		}
 	}
-	
-	return Super::Initialize();
+
+	if (ResetLevelButton)
+	{
+		ResetLevelButton->OnClicked.AddDynamic(this, &UTPSGameOverWidget::OnResetLevelHandle);
+	}
 }
 
 void UTPSGameOverWidget::OnMatchStateChangedHandle(ETPSMatchState State)
@@ -55,4 +62,10 @@ void UTPSGameOverWidget::UpdatePlayerStat()
 
 		PlayerStatBox->AddChildToVerticalBox(PlayerStatRowWidget);
 	}
+}
+
+void UTPSGameOverWidget::OnResetLevelHandle()
+{
+	const FString CurrentLevelName = UGameplayStatics::GetCurrentLevelName(this);
+	UGameplayStatics::OpenLevel(this, FName(CurrentLevelName));
 }
