@@ -2,10 +2,10 @@
 
 
 #include "Menu/UI/TPSMenuWidget.h"
-
 #include "TPSGameInstance.h"
 #include "Components/Button.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogTPSMenuWidget, All, All);
 
@@ -16,6 +16,11 @@ void UTPSMenuWidget::NativeOnInitialized()
 	if (StartGameButton)
 	{
 		StartGameButton->OnClicked.AddDynamic(this, &UTPSMenuWidget::OnStartGameHandle);
+	}
+
+	if (QuitGameButton)
+	{
+		QuitGameButton->OnClicked.AddDynamic(this, &UTPSMenuWidget::OnQuitGameHandle);
 	}
 }
 
@@ -33,4 +38,9 @@ void UTPSMenuWidget::OnStartGameHandle()
 	}
 	
 	UGameplayStatics::OpenLevel(this, GameInstance->GetStartupLevelName());
+}
+
+void UTPSMenuWidget::OnQuitGameHandle()
+{
+	UKismetSystemLibrary::QuitGame(this, GetOwningPlayer(), EQuitPreference::Quit, true);
 }
