@@ -15,8 +15,6 @@ class TPSHOOTER_API ATPSBaseCharacter : public ACharacter
 	GENERATED_BODY()
 
 private:
-	void OnHealthChangedHandle(float Health, float HealthDelta) const;
-
 	UFUNCTION()
 	void OnGroundLanded(const FHitResult& Hit);
 
@@ -49,6 +47,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void OnDeathHandle();
+	virtual void OnHealthChangedHandle(float Health, float HealthDelta) const;
 
 public:
 	virtual void Tick(float DeltaTime) override;
