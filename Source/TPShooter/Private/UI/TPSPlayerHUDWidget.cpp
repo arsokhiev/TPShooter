@@ -5,6 +5,7 @@
 #include "Components/TPSHealthComponent.h"
 #include "Components/TPSWeaponComponent.h"
 #include "TPSUtils.h"
+#include "Components/ProgressBar.h"
 
 float UTPSPlayerHUDWidget::GetHealthPercent() const
 {
@@ -42,6 +43,27 @@ bool UTPSPlayerHUDWidget::IsPlayerSpectating() const
 	return Controller && Controller->GetStateName() == NAME_Spectating;
 }
 
+int32 UTPSPlayerHUDWidget::GetKillsNum() const
+{
+	const auto PlayerState = GetTPSPlayerState();
+	return PlayerState ? PlayerState->GetKillsNum() : 0;
+}
+
+FString UTPSPlayerHUDWidget::FormatBullets(int32 BulletsNum) const
+{
+	const int32 MaxLen = 2;
+	const TCHAR PrefixSym = '0';
+
+	auto BulletsStr = FString::FromInt(BulletsNum);
+
+	if (const auto SymbolsNumToAdd = MaxLen - BulletsStr.Len(); SymbolsNumToAdd > 0)
+	{
+		BulletsStr = FString::ChrN(SymbolsNumToAdd, PrefixSym).Append(BulletsStr);
+	}
+
+	return BulletsStr;
+}
+
 void UTPSPlayerHUDWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
@@ -60,6 +82,8 @@ void UTPSPlayerHUDWidget::OnHealthChanged(float Health, float HealthDelta)
 	{
 		OnTakeDamage();
 	}
+
+	UpdateHealthBar();
 }
 
 void UTPSPlayerHUDWidget::OnNewPawnHandle(APawn* NewPawn)
@@ -68,4 +92,19 @@ void UTPSPlayerHUDWidget::OnNewPawnHandle(APawn* NewPawn)
 	{
 		HealthComponent->OnHealthChanged.AddUObject(this, &UTPSPlayerHUDWidget::OnHealthChanged);
 	}
+
+	UpdateHealthBar();
+}
+
+void UTPSPlayerHUDWidget::UpdateHealthBar()
+{
+	if (HealthProgressBar)
+	{
+		HealthProgressBar->SetFillColorAndOpacity(GetHealthPercent() > PercentColorThreshold ? GoodColor : BadColor);
+	}
+}
+
+ATPSPlayerState* UTPSPlayerHUDWidget::GetTPSPlayerState() const
+{
+	return GetOwningPlayer() ? Cast<ATPSPlayerState>(GetOwningPlayer()->PlayerState) : nullptr;
 }

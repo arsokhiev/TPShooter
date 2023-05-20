@@ -31,6 +31,14 @@ void UTPSPlayerStatRowWidget::SetTeam(const FText& Text)
 
 void UTPSPlayerStatRowWidget::SetPlayerIndicatorVisibility(bool Visible)
 {
-	if (!PlayerIndicatorWidget) return;
-	PlayerIndicatorWidget->SetVisibility(Visible ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+	if (!PlayerIndicatorImage) return;
+	PlayerIndicatorImage->SetVisibility(Visible ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+}
+
+void UTPSPlayerStatRowWidget::SetTeamColor(const FLinearColor& Color)
+{
+	if (TeamImage)
+	{
+		TeamImage->SetColorAndOpacity(Color);
+	}
 }

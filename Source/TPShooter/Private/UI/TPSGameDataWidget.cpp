@@ -5,12 +5,6 @@
 #include "TPSGameModeBase.h"
 #include "Player/TPSPlayerState.h"
 
-int32 UTPSGameDataWidget::GetKillsNum() const
-{
-	const auto PlayerState = GetTPSPlayerState();
-	return PlayerState ? PlayerState->GetKillsNum() : 0;
-}
-
 int32 UTPSGameDataWidget::GetCurrentRoundNum() const
 {
 	const auto GameMode = GetTpsGameMode();

@@ -59,6 +59,7 @@ void UTPSGameOverWidget::UpdatePlayerStat()
 		PlayerStatRowWidget->SetDeaths(TPSUtils::TextFromInt(PlayerState->GetDeathsNum()));
 		PlayerStatRowWidget->SetTeam(TPSUtils::TextFromInt(PlayerState->GetTeamID()));
 		PlayerStatRowWidget->SetPlayerIndicatorVisibility(Controller->IsPlayerController());
+		PlayerStatRowWidget->SetTeamColor(PlayerState->GetTeamColor());
 
 		PlayerStatBox->AddChildToVerticalBox(PlayerStatRowWidget);
 	}

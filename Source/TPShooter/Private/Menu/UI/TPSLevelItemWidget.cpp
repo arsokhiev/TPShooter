@@ -36,10 +36,29 @@ void UTPSLevelItemWidget::NativeOnInitialized()
 	if (LevelSelectButton)
 	{
 		LevelSelectButton->OnClicked.AddDynamic(this, &UTPSLevelItemWidget::OnLevelItemClickedHandle);
+		LevelSelectButton->OnHovered.AddDynamic(this, &UTPSLevelItemWidget::OnLevelItemHoveredHandle);
+		LevelSelectButton->OnUnhovered.AddDynamic(this, &UTPSLevelItemWidget::OnLevelItemUnhoveredHandle);
 	}
 }
 
 void UTPSLevelItemWidget::OnLevelItemClickedHandle()
 {
 	OnLevelSelected.Broadcast(LevelData);
+}
+
+void UTPSLevelItemWidget::OnLevelItemHoveredHandle()
+{
+	if (LevelImage)
+	{
+		FLinearColor Yellow = FLinearColor::FromSRGBColor(FColor(255, 200, 0, 255));
+		LevelImage->SetColorAndOpacity(Yellow);
+	}
+}
+
+void UTPSLevelItemWidget::OnLevelItemUnhoveredHandle()
+{
+	if (LevelImage)
+	{
+		LevelImage->SetColorAndOpacity(FLinearColor::White);
+	}
 }
