@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "TPSCoreTypes.h"
-#include "Blueprint/UserWidget.h"
+#include "TPSBaseWidget.h"
 #include "TPSGameOverWidget.generated.h"
 
 class UVerticalBox;
 class UButton;
 
 UCLASS()
-class TPSHOOTER_API UTPSGameOverWidget : public UUserWidget
+class TPSHOOTER_API UTPSGameOverWidget : public UTPSBaseWidget
 {
 	GENERATED_BODY()
 

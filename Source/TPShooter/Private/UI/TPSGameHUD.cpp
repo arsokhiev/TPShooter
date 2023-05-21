@@ -4,7 +4,7 @@
 #include "UI/TPSGameHUD.h"
 #include "TPSGameModeBase.h"
 #include "Engine/Canvas.h"
-#include "Blueprint/UserWidget.h"
+#include "UI/TPSBaseWidget.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogTPSGameHUD, All, All);
 
@@ -17,9 +17,9 @@ void ATPSGameHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GameWidgets.Add(ETPSMatchState::InProgress, CreateWidget<UUserWidget>(GetWorld(), PlayerHUDWidgetClass));
-	GameWidgets.Add(ETPSMatchState::Pause, CreateWidget<UUserWidget>(GetWorld(), PauseWidgetClass));
-	GameWidgets.Add(ETPSMatchState::GameOver, CreateWidget<UUserWidget>(GetWorld(), GameOverWidgetClass));
+	GameWidgets.Add(ETPSMatchState::InProgress, CreateWidget<UTPSBaseWidget>(GetWorld(), PlayerHUDWidgetClass));
+	GameWidgets.Add(ETPSMatchState::Pause, CreateWidget<UTPSBaseWidget>(GetWorld(), PauseWidgetClass));
+	GameWidgets.Add(ETPSMatchState::GameOver, CreateWidget<UTPSBaseWidget>(GetWorld(), GameOverWidgetClass));
 
 	for (auto GameWidgetPair : GameWidgets)
 	{
@@ -54,6 +54,7 @@ void ATPSGameHUD::OnMatchStateChangedHandle(ETPSMatchState State)
 	if (CurrentWidget)
 	{
 		CurrentWidget->SetVisibility(ESlateVisibility::Visible);
+		CurrentWidget->Show();
 	}
 	
 	UE_LOG(LogTPSGameHUD, Display, TEXT("Match state changed: %s"), *UEnum::GetValueAsString(State));

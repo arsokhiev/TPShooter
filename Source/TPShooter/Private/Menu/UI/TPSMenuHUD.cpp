@@ -2,8 +2,7 @@
 
 
 #include "Menu/UI/TPSMenuHUD.h"
-#include "Blueprint/UserWidget.h"
-#include "Menu/UI/TPSMenuWidget.h"
+#include "UI/TPSBaseWidget.h"
 
 void ATPSMenuHUD::BeginPlay()
 {
@@ -11,10 +10,11 @@ void ATPSMenuHUD::BeginPlay()
 
 	if (MenuWidgetClass)
 	{
-		const auto MenuWidget = CreateWidget<UUserWidget>(GetWorld(), MenuWidgetClass);
+		const auto MenuWidget = CreateWidget<UTPSBaseWidget>(GetWorld(), MenuWidgetClass);
 		if (MenuWidget)
 		{
 			MenuWidget->AddToViewport();
+			MenuWidget->Show();
 		}
 	}
 }

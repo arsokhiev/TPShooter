@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "TPSBaseWidget.h"
 #include "TPSCoreTypes.h"
 #include "TPSPlayerHUDWidget.generated.h"
 
@@ -11,7 +11,7 @@ class ATPSPlayerState;
 class UProgressBar;
 
 UCLASS()
-class TPSHOOTER_API UTPSPlayerHUDWidget : public UUserWidget
+class TPSHOOTER_API UTPSPlayerHUDWidget : public UTPSBaseWidget
 {
 	GENERATED_BODY()
 
@@ -43,6 +43,9 @@ public:
 protected:
 	UPROPERTY(meta = (BindWidget))
 	UProgressBar* HealthProgressBar;
+
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	UWidgetAnimation* DamageAnimation;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
 	float PercentColorThreshold = 0.3f;

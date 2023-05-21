@@ -7,6 +7,8 @@
 #include "GameFramework/HUD.h"
 #include "TPSGameHUD.generated.h"
 
+class UTPSBaseWidget;
+
 UCLASS()
 class TPSHOOTER_API ATPSGameHUD : public AHUD
 {
@@ -29,10 +31,10 @@ protected:
 
 private:
 	UPROPERTY()
-	TMap<ETPSMatchState, UUserWidget*> GameWidgets;
+	TMap<ETPSMatchState, UTPSBaseWidget*> GameWidgets;
 
 	UPROPERTY()
-	UUserWidget* CurrentWidget = nullptr;
+	UTPSBaseWidget* CurrentWidget = nullptr;
 	
 	void OnMatchStateChangedHandle(ETPSMatchState State);
 };
