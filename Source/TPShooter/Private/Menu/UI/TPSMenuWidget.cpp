@@ -28,12 +28,21 @@ void UTPSMenuWidget::NativeOnInitialized()
 	InitLevelItems();
 }
 
-void UTPSMenuWidget::OnStartGameHandle()
+void UTPSMenuWidget::OnAnimationFinished_Implementation(const UWidgetAnimation* Animation)
 {
+	Super::OnAnimationFinished_Implementation(Animation);
+
+	if (Animation != HideAnimation) return;
+	
 	const auto TPSGameInstance = GetTPSGameInstance();
 	if (!TPSGameInstance) return;
 	
 	UGameplayStatics::OpenLevel(this, TPSGameInstance->GetStartupLevel().LevelName);
+}
+
+void UTPSMenuWidget::OnStartGameHandle()
+{
+	PlayAnimation(HideAnimation);
 }
 
 void UTPSMenuWidget::OnQuitGameHandle()
