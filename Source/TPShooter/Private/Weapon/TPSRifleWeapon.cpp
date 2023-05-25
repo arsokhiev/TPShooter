@@ -10,6 +10,9 @@
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "GameFramework/Character.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
+#include "Components/AudioComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogRifleWeapon, All, All);
 
@@ -27,21 +30,32 @@ void ATPSRifleWeapon::PlayShootFeedback()
 	Controller->ClientPlayForceFeedback(ShootFeedback);
 }
 
-void ATPSRifleWeapon::InitMuzzleFX()
+void ATPSRifleWeapon::InitFX()
 {
 	if (!MuzzleFXComponent)
 	{
 		MuzzleFXComponent = SpawnMuzzleFX();
 	}
-	SetMuzzleFXVisibility(true);
+	
+	if (!FireAudioComponent)
+	{
+		FireAudioComponent = UGameplayStatics::SpawnSoundAttached(FireSound, WeaponMesh, MuzzleSocketName);
+	}
+	
+	SetFXActive(true);
 }
 
-void ATPSRifleWeapon::SetMuzzleFXVisibility(bool Visible)
+void ATPSRifleWeapon::SetFXActive(bool IsActive)
 {
 	if (MuzzleFXComponent)
 	{
-		MuzzleFXComponent->SetPaused(!Visible);
-		MuzzleFXComponent->SetVisibility(Visible, true);
+		MuzzleFXComponent->SetPaused(!IsActive);
+		MuzzleFXComponent->SetVisibility(IsActive, true);
+	}
+	
+	if (FireAudioComponent)
+	{
+		FireAudioComponent->SetPaused(!IsActive);
 	}
 }
 
@@ -69,7 +83,7 @@ void ATPSRifleWeapon::StartFire()
 {
 	UE_LOG(LogRifleWeapon, Display, TEXT("FIRE!!!!"));
 
-	InitMuzzleFX();
+	InitFX();
 	GetWorldTimerManager().SetTimer(ShootTimerHandle, this, &ATPSRifleWeapon::MakeShoot, TimeBetweenShoots, true);
 	MakeShoot();
 }
@@ -77,7 +91,7 @@ void ATPSRifleWeapon::StartFire()
 void ATPSRifleWeapon::StopFire()
 {
 	GetWorldTimerManager().ClearTimer(ShootTimerHandle);
-	SetMuzzleFXVisibility(false);
+	SetFXActive(false);
 }
 
 //trace from the camera to center of the screen (straight) with some spread
@@ -106,6 +120,11 @@ void ATPSRifleWeapon::MakeShoot()
 	{
 		StopFire();
 		return;
+	}
+
+	if (FireEndSound)
+	{
+		UGameplayStatics::SpawnSoundAttached(FireEndSound, WeaponMesh, MuzzleSocketName);
 	}
 	
 	FVector TraceStart, TraceEnd;

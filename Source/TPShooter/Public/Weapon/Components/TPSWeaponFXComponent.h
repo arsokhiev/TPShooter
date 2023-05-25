@@ -10,7 +10,6 @@
 class UNiagaraSystem;
 class UPhysicalMaterial;
 
-
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class TPSHOOTER_API UTPSWeaponFXComponent : public UActorComponent
 {

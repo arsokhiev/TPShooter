@@ -9,6 +9,8 @@
 #include "GameFramework/Controller.h"
 #include "Components/TPSWeaponComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogBaseCharacter, All, All)
 
@@ -81,6 +83,8 @@ void ATPSBaseCharacter::OnDeathHandle()
 
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GetMesh()->SetSimulatePhysics(true);
+
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), DeathSound, GetActorLocation());
 }
 
 void ATPSBaseCharacter::OnHealthChangedHandle(float Health, float HealthDelta) const

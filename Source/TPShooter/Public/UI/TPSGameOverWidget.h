@@ -23,7 +23,7 @@ protected:
 	TSubclassOf<UUserWidget> PlayerStatRowWidgetClass;
 
 	UPROPERTY(meta = (BindWidget))
-	UButton* ResetLevelButton;
+	UButton* RestartLevelButton;
 
 	virtual void NativeOnInitialized() override;
 
@@ -32,5 +32,5 @@ private:
 	void UpdatePlayerStat();
 
 	UFUNCTION()
-	void OnResetLevelHandle();
+	void OnRestartLevelHandle();
 };

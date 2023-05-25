@@ -9,6 +9,8 @@
 class UTPSWeaponFXComponent;
 class UNiagaraComponent;
 class UNiagaraSystem;
+class UAudioComponent;
+class USoundCue;
 
 UCLASS()
 class TPSHOOTER_API ATPSRifleWeapon : public ATPSBaseWeapon
@@ -21,11 +23,14 @@ private:
 	UPROPERTY()
 	UNiagaraComponent* MuzzleFXComponent;
 
+	UPROPERTY()
+	UAudioComponent* FireAudioComponent;
+
 	void MakeDamage(const FHitResult& HitResult);
 	virtual void PlayShootFeedback() override;
 
-	void InitMuzzleFX();
-	void SetMuzzleFXVisibility(bool Visible);
+	void InitFX();
+	void SetFXActive(bool IsActive);
 
 	void SpawnTraceFX(const FVector& TraceStart, const FVector& TraceEnd);
 
@@ -59,6 +64,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
 	FString TraceTargetName = "TraceTarget";
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
+	USoundCue* FireEndSound;
 
 	virtual void BeginPlay() override;
 	virtual void MakeShoot() override;

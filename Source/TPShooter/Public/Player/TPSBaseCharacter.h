@@ -8,6 +8,7 @@
 
 class UTPSHealthComponent;
 class UTPSWeaponComponent;
+class USoundCue;
 
 UCLASS()
 class TPSHOOTER_API ATPSBaseCharacter : public ACharacter
@@ -44,6 +45,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Material")
 	FName MaterialColorName = "Paint Color";
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
+	USoundCue* DeathSound;
+	
 	virtual void BeginPlay() override;
 
 	virtual void OnDeathHandle();

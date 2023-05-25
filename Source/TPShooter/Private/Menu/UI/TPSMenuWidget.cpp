@@ -8,6 +8,7 @@
 #include "Components/HorizontalBox.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Sound/SoundCue.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogTPSMenuWidget, All, All);
 
@@ -43,6 +44,7 @@ void UTPSMenuWidget::OnAnimationFinished_Implementation(const UWidgetAnimation* 
 void UTPSMenuWidget::OnStartGameHandle()
 {
 	PlayAnimation(HideAnimation);
+	UGameplayStatics::PlaySound2D(GetWorld(), StartGameSound);
 }
 
 void UTPSMenuWidget::OnQuitGameHandle()

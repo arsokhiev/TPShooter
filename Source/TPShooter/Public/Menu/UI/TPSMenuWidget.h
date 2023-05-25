@@ -11,6 +11,7 @@ class UButton;
 class UHorizontalBox;
 class UTPSGameInstance;
 class UTPSLevelItemWidget;
+class USoundCue;
 
 UCLASS()
 class TPSHOOTER_API UTPSMenuWidget : public UTPSBaseWidget
@@ -32,6 +33,9 @@ protected:
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* HideAnimation;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
+	USoundCue* StartGameSound;
 	
 	virtual void NativeOnInitialized() override;
 	virtual void OnAnimationFinished_Implementation(const UWidgetAnimation* Animation) override;

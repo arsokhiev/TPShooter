@@ -7,6 +7,7 @@
 #include "TPSLauncherWeapon.generated.h"
 
 class ATPSProjectile;
+class USoundCue;
 
 UCLASS()
 class TPSHOOTER_API ATPSLauncherWeapon : public ATPSBaseWeapon
@@ -25,6 +26,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	UForceFeedbackEffect* ShootFeedback;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
+	USoundCue* NoProjectilesSound;
 	
 	virtual void MakeShoot() override;
 };

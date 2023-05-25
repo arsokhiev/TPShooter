@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "TPSBasePickup.generated.h"
 
+class USoundCue;
 class USphereComponent;
 
 UCLASS()
@@ -22,6 +23,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pickup")
 	float RespawnTime = 5.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
+	USoundCue* TakeSound;
 	
 	virtual void BeginPlay() override;
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;

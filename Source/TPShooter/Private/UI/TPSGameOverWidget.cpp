@@ -23,9 +23,9 @@ void UTPSGameOverWidget::NativeOnInitialized()
 		}
 	}
 
-	if (ResetLevelButton)
+	if (RestartLevelButton)
 	{
-		ResetLevelButton->OnClicked.AddDynamic(this, &UTPSGameOverWidget::OnResetLevelHandle);
+		RestartLevelButton->OnClicked.AddDynamic(this, &UTPSGameOverWidget::OnRestartLevelHandle);
 	}
 }
 
@@ -65,7 +65,7 @@ void UTPSGameOverWidget::UpdatePlayerStat()
 	}
 }
 
-void UTPSGameOverWidget::OnResetLevelHandle()
+void UTPSGameOverWidget::OnRestartLevelHandle()
 {
 	const FString CurrentLevelName = UGameplayStatics::GetCurrentLevelName(this);
 	UGameplayStatics::OpenLevel(this, FName(CurrentLevelName));

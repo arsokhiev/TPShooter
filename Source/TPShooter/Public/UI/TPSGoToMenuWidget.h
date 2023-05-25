@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "TPSGoToMenuWidget.generated.h"
 
+class USoundCue;
 class UButton;
 
 UCLASS()
@@ -16,6 +17,9 @@ class TPSHOOTER_API UTPSGoToMenuWidget : public UUserWidget
 protected:
 	UPROPERTY(meta = (BindWidget))
 	UButton* GoToMenuButton;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UUserWidget> MenuLoadingWidgetClass;
 
 	virtual void NativeOnInitialized() override;
 	

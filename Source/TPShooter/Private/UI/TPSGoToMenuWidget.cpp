@@ -2,9 +2,12 @@
 
 
 #include "UI/TPSGoToMenuWidget.h"
+#include "CanvasItem.h"
 #include "TPSGameInstance.h"
+#include "TPSMenuLoadingWidget.h"
 #include "Components/Button.h"
 #include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogTPSGoToMenuWidget, All, All);
 
@@ -30,6 +33,7 @@ void UTPSGoToMenuWidget::OnGoToMenuHandle()
 		UE_LOG(LogTPSGoToMenuWidget, Error, TEXT("Menu level name is NONE"));
 		return;
 	}
-
-	UGameplayStatics::OpenLevel(this, GameInstance->GetMenuLevelName());
+	
+	const auto MenuLoadingWidget = CreateWidget<UTPSMenuLoadingWidget>(GetWorld(), MenuLoadingWidgetClass);
+	MenuLoadingWidget->AddToViewport();
 }
