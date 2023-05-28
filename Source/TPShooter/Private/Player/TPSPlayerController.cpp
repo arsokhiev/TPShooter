@@ -2,6 +2,7 @@
 
 
 #include "Player/TPSPlayerController.h"
+#include "TPSGameInstance.h"
 #include "TPSGameModeBase.h"
 #include "Components/TPSRespawnComponent.h"
 
@@ -30,6 +31,7 @@ void ATPSPlayerController::SetupInputComponent()
 
 	if (!InputComponent) return;
 	InputComponent->BindAction("Pause", EInputEvent::IE_Pressed, this, &ATPSPlayerController::OnPauseGame);
+	InputComponent->BindAction("Mute", EInputEvent::IE_Pressed, this, &ATPSPlayerController::OnMuteSoundHandle);
 }
 
 void ATPSPlayerController::OnPauseGame()
@@ -50,4 +52,14 @@ void ATPSPlayerController::OnMatchStateChangedHandle(ETPSMatchState State)
 		SetInputMode(FInputModeUIOnly());
 		bShowMouseCursor = true;
 	}
+}
+
+void ATPSPlayerController::OnMuteSoundHandle()
+{
+	if (!GetWorld()) return;
+
+	const auto TPSGameInstance = GetWorld()->GetGameInstance<UTPSGameInstance>();
+	if (!TPSGameInstance) return;
+
+	TPSGameInstance->ToggleVolume();
 }

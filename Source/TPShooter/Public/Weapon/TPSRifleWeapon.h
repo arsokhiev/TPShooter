@@ -54,7 +54,7 @@ protected:
 	float TimeBetweenShoots = 0.15f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
-	float BulletSpread = 1.0f;
+	float BulletSpread = 0.7f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
 	UTPSWeaponFXComponent* WeaponFXComponent;

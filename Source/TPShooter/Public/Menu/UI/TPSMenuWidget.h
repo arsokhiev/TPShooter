@@ -7,6 +7,7 @@
 #include "TPSCoreTypes.h"
 #include "TPSMenuWidget.generated.h"
 
+class ATPSAmbientSoundActor;
 class UButton;
 class UHorizontalBox;
 class UTPSGameInstance;
@@ -36,6 +37,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
 	USoundCue* StartGameSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
+	TSubclassOf<ATPSAmbientSoundActor> AmbientSoundActorClass;
 	
 	virtual void NativeOnInitialized() override;
 	virtual void OnAnimationFinished_Implementation(const UWidgetAnimation* Animation) override;

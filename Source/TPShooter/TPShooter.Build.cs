@@ -39,7 +39,9 @@ public class TPShooter : ModuleRules
             "TPShooter/Public/AI/EQS",
             "TPShooter/Public/AI/Decorators",
             "TPShooter/Public/Menu",
-            "TPShooter/Public/Menu/UI"
+            "TPShooter/Public/Menu/UI",
+            "TPShooter/Public/Sound",
+            "TPShooter/Public/World"
         });
 
         // Uncomment if you are using Slate UI

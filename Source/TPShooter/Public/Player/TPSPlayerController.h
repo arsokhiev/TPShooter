@@ -27,4 +27,5 @@ protected:
 private:
 	void OnPauseGame();
 	void OnMatchStateChangedHandle(ETPSMatchState State);
+	void OnMuteSoundHandle();
 };

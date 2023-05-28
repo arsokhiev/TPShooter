@@ -4,11 +4,13 @@
 #include "Menu/UI/TPSMenuWidget.h"
 #include "TPSGameInstance.h"
 #include "TPSLevelItemWidget.h"
+#include "Components/AudioComponent.h"
 #include "Components/Button.h"
 #include "Components/HorizontalBox.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Sound/SoundCue.h"
+#include "World/TPSAmbientSoundActor.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogTPSMenuWidget, All, All);
 
@@ -45,6 +47,16 @@ void UTPSMenuWidget::OnStartGameHandle()
 {
 	PlayAnimation(HideAnimation);
 	UGameplayStatics::PlaySound2D(GetWorld(), StartGameSound);
+	
+	for (TObjectIterator<AActor> Itr; Itr; ++Itr)
+	{
+		if (Itr->IsA(AmbientSoundActorClass))
+		{
+			const auto AudioComponent = Itr->FindComponentByClass<UAudioComponent>();
+			if (!AudioComponent) continue;
+			AudioComponent->FadeOut(3.5f, 0.0f);
+		}
+	}
 }
 
 void UTPSMenuWidget::OnQuitGameHandle()
