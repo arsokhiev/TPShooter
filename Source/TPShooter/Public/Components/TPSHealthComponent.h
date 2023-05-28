@@ -8,8 +8,9 @@
 #include "TPSHealthComponent.generated.h"
 
 class UCameraShakeBase;
+class UPhysicalMaterial;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class TPSHOOTER_API UTPSHealthComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -20,15 +21,27 @@ private:
 
 	UFUNCTION()
 	void OnTakeAnyDamageHandle(AActor* DamagedActor, float Damage, const class UDamageType* DamageType,
-		class AController* InstigatedBy, AActor* DamageCauser);
+	                           class AController* InstigatedBy, AActor* DamageCauser);
+
+	UFUNCTION()
+	void OnTakePointDamageHandle(AActor* DamagedActor, float Damage, class AController* InstigatedBy, FVector HitLocation,
+	                       class UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection,
+	                       const class UDamageType* DamageType, AActor* DamageCauser);
+
+	UFUNCTION()
+	void OnTakeRadialDamageHandle(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, FVector Origin,
+	                        FHitResult HitInfo, class AController* InstigatedBy, AActor* DamageCauser);
 
 	void HealUpdate();
 	void SetHealth(float NewHealth);
 	void PlayCameraShake();
 
 	void Killed(AController* KillerController);
-	
-public:	
+
+	void ApplyDamage(float Damage, AController* InstigatedBy);
+	float GetPointDamageModifier(AActor* DamagedActor, const FName& BoneName);
+
+public:
 	UTPSHealthComponent();
 
 	float GetHealth() const { return Health; }
@@ -48,19 +61,25 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health")
+	TMap<UPhysicalMaterial*, float> DamageModifiers;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health", meta = (ClampMin = 10.0f, ClampMax = 1000.0f));
 	float MaxHealth = 100.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Heal")
 	bool AutoHeal = true;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Heal", meta = (EditCondition = "AutoHeal", ClampMin = 0.001f, ClampMax = 3.0f));
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Heal",
+		meta = (EditCondition = "AutoHeal", ClampMin = 0.001f, ClampMax = 3.0f));
 	float HealUpdateTime = 0.3f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Heal", meta = (EditCondition = "AutoHeal", ClampMin = 0.001f, ClampMax = 60.0f));
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Heal",
+		meta = (EditCondition = "AutoHeal", ClampMin = 0.001f, ClampMax = 60.0f));
 	float HealDelay = 3.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Heal", meta = (EditCondition = "AutoHeal", ClampMin = 0.001f, ClampMax = 5.0f));
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Heal",
+		meta = (EditCondition = "AutoHeal", ClampMin = 0.001f, ClampMax = 5.0f));
 	float HealModifier = 1.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")

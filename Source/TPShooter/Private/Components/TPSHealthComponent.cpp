@@ -1,16 +1,14 @@
 // Third Player Shooter, All Rights Reserved
 
 #include "Components/TPSHealthComponent.h"
-#include "GameFramework/Actor.h"
-#include "GameFramework/Pawn.h"
+#include "GameFramework/Character.h"
 #include "GameFramework/Controller.h"
-#include "Dev/TPSFireDamageType.h"
-#include "Dev/TPSIceDamageType.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
 #include "TPSGameModeBase.h"
 #include "TPSUtils.h"
 #include "Camera/CameraShakeBase.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogHealthComponent, All, All)
 
@@ -59,6 +57,44 @@ void UTPSHealthComponent::Killed(AController* KillerController)
 	GameMode->Killed(KillerController, VictimController);
 }
 
+void UTPSHealthComponent::ApplyDamage(float Damage, AController* InstigatedBy)
+{
+	// no teammate damage
+	const auto Controller = Cast<APawn>(GetOwner())->GetController();
+	if (!Controller || !InstigatedBy) return;
+	if (TPSUtils::AreTeammates(Controller, InstigatedBy)) return;
+
+	if (Damage <= 0.0f || IsDead() || !GetWorld()) return;
+
+	SetHealth(Health - Damage);
+
+	GetWorld()->GetTimerManager().ClearTimer(HealTimerHandle);
+
+	if (IsDead())
+	{
+		Killed(InstigatedBy);
+		OnDeath.Broadcast();
+	}
+	else if (AutoHeal)
+	{
+		GetWorld()->GetTimerManager().SetTimer(HealTimerHandle, this, &UTPSHealthComponent::HealUpdate, HealUpdateTime,
+											   true, HealDelay);
+	}
+
+	PlayCameraShake();
+}
+
+float UTPSHealthComponent::GetPointDamageModifier(AActor* DamagedActor, const FName& BoneName)
+{
+	const auto Character = Cast<ACharacter>(DamagedActor);
+	if (!Character || !Character->GetMesh() || !Character->GetMesh()->GetBodyInstance(BoneName)) return 1.0f;
+
+	const auto PhysMaterial = Character->GetMesh()->GetBodyInstance(BoneName)->GetSimplePhysicalMaterial();
+	if (!PhysMaterial || !DamageModifiers.Contains(PhysMaterial)) return 1.0f;
+
+	return DamageModifiers[PhysMaterial];
+}
+
 UTPSHealthComponent::UTPSHealthComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -88,33 +124,29 @@ void UTPSHealthComponent::BeginPlay()
 	if (ComponentOwner)
 	{
 		ComponentOwner->OnTakeAnyDamage.AddDynamic(this, &UTPSHealthComponent::OnTakeAnyDamageHandle);
+		ComponentOwner->OnTakePointDamage.AddDynamic(this, &UTPSHealthComponent::OnTakePointDamageHandle);
+		ComponentOwner->OnTakeRadialDamage.AddDynamic(this, &UTPSHealthComponent::OnTakeRadialDamageHandle);
 	}
 }
 
 void UTPSHealthComponent::OnTakeAnyDamageHandle(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
                                                 AController* InstigatedBy, AActor* DamageCauser)
 {
-	// no teammate damage
-	const auto Controller = Cast<APawn>(GetOwner())->GetController();
-	if (!Controller || !InstigatedBy) return;
-	if (TPSUtils::AreTeammates(Controller, InstigatedBy)) return;
+	UE_LOG(LogHealthComponent, Display, TEXT("On any damage: %f"), Damage);
+}
 
-	if (Damage <= 0.0f || IsDead() || !GetWorld()) return;
+void UTPSHealthComponent::OnTakePointDamageHandle(AActor* DamagedActor, float Damage, AController* InstigatedBy,
+	FVector HitLocation, UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection,
+	const UDamageType* DamageType, AActor* DamageCauser)
+{
+	const auto FinalDamage = Damage * GetPointDamageModifier(DamagedActor, BoneName);
+	UE_LOG(LogHealthComponent, Display, TEXT("On point damage: %f, bone: %s"), FinalDamage, *BoneName.ToString());
+	ApplyDamage(FinalDamage, InstigatedBy);
+}
 
-	SetHealth(Health - Damage);
-
-	GetWorld()->GetTimerManager().ClearTimer(HealTimerHandle);
-
-	if (IsDead())
-	{
-		Killed(InstigatedBy);
-		OnDeath.Broadcast();
-	}
-	else if (AutoHeal)
-	{
-		GetWorld()->GetTimerManager().SetTimer(HealTimerHandle, this, &UTPSHealthComponent::HealUpdate, HealUpdateTime,
-		                                       true, HealDelay);
-	}
-
-	PlayCameraShake();
+void UTPSHealthComponent::OnTakeRadialDamageHandle(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
+	FVector Origin, FHitResult HitInfo, AController* InstigatedBy, AActor* DamageCauser)
+{
+	UE_LOG(LogHealthComponent, Display, TEXT("On radial damage: %f"), Damage);
+	ApplyDamage(Damage, InstigatedBy);
 }

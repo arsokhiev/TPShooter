@@ -13,6 +13,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 #include "Components/AudioComponent.h"
+#include "Engine/DamageEvents.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogRifleWeapon, All, All);
 
@@ -21,7 +22,9 @@ void ATPSRifleWeapon::MakeDamage(const FHitResult& HitResult)
 	const auto DamageTaker = HitResult.GetActor();
 	if (!DamageTaker) return;
 
-	DamageTaker->TakeDamage(DamageAmount, FDamageEvent{}, GetController(), this);
+	FPointDamageEvent PointDamageEvent;
+	PointDamageEvent.HitInfo = HitResult;
+	DamageTaker->TakeDamage(DamageAmount, PointDamageEvent, GetController(), this);
 }
 
 void ATPSRifleWeapon::PlayShootFeedback()
