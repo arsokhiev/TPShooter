@@ -8,6 +8,7 @@
 #include "TPSGameModeBase.h"
 #include "TPSUtils.h"
 #include "Camera/CameraShakeBase.h"
+#include "Perception/AISense_Damage.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogHealthComponent, All, All)
@@ -82,6 +83,7 @@ void UTPSHealthComponent::ApplyDamage(float Damage, AController* InstigatedBy)
 	}
 
 	PlayCameraShake();
+	ReportDamageEvent(Damage, InstigatedBy);
 }
 
 float UTPSHealthComponent::GetPointDamageModifier(AActor* DamagedActor, const FName& BoneName)
@@ -93,6 +95,18 @@ float UTPSHealthComponent::GetPointDamageModifier(AActor* DamagedActor, const FN
 	if (!PhysMaterial || !DamageModifiers.Contains(PhysMaterial)) return 1.0f;
 
 	return DamageModifiers[PhysMaterial];
+}
+
+void UTPSHealthComponent::ReportDamageEvent(float Damage, AController* InstigatedBy)
+{
+	if (!InstigatedBy || !InstigatedBy->GetPawn() || !GetOwner()) return;
+	
+	UAISense_Damage::ReportDamageEvent(GetWorld(),
+										   GetOwner(),
+										   InstigatedBy->GetPawn(),
+										   Damage,
+										   InstigatedBy->GetPawn()->GetActorLocation(),
+										   GetOwner()->GetActorLocation());
 }
 
 UTPSHealthComponent::UTPSHealthComponent()

@@ -6,13 +6,18 @@
 #include "TPSUtils.h"
 #include "Components/TPSHealthComponent.h"
 #include "Perception/AISense_Sight.h"
+#include "Perception/AISense_Damage.h"
 
 AActor* UTPSAIPerceptionComponent::GetClosestEnemy() const
 {
 	//getting all perceived actor
 	TArray<AActor*> PerceiveActors;
 	GetCurrentlyPerceivedActors(UAISense_Sight::StaticClass(), PerceiveActors);
-	if (PerceiveActors.Num() == 0) return nullptr;
+	if (PerceiveActors.Num() == 0)
+	{
+		GetCurrentlyPerceivedActors(UAISense_Damage::StaticClass(), PerceiveActors);
+		if (PerceiveActors.Num() == 0) return nullptr;
+	}
 
 	//getting a pawn controlled by ai controller
 	const auto Controller = Cast<AAIController>(GetOwner());
