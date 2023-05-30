@@ -102,5 +102,5 @@ void ATPSBaseCharacter::OnGroundLanded(const FHitResult& Hit)
 
 	const auto FinalFallDamage = FMath::GetMappedRangeValueClamped(LandedDamageVelocity, LandedDamage, FallVelocityZ);
 	UE_LOG(LogBaseCharacter, Display, TEXT("Final Fall Damage: %.0f"), FinalFallDamage);
-	TakeDamage(FinalFallDamage, FDamageEvent {}, nullptr, nullptr);
+	TakeDamage(FinalFallDamage, FPointDamageEvent {}, nullptr, nullptr);
 }

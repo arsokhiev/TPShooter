@@ -62,7 +62,7 @@ void UTPSHealthComponent::ApplyDamage(float Damage, AController* InstigatedBy)
 {
 	// no teammate damage
 	const auto Controller = Cast<APawn>(GetOwner())->GetController();
-	if (!Controller || !InstigatedBy) return;
+	if (!Controller) return;
 	if (TPSUtils::AreTeammates(Controller, InstigatedBy)) return;
 
 	if (Damage <= 0.0f || IsDead() || !GetWorld()) return;
@@ -159,7 +159,7 @@ void UTPSHealthComponent::OnTakePointDamageHandle(AActor* DamagedActor, float Da
 }
 
 void UTPSHealthComponent::OnTakeRadialDamageHandle(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
-	FVector Origin, FHitResult HitInfo, AController* InstigatedBy, AActor* DamageCauser)
+	FVector Origin, const FHitResult& HitInfo, AController* InstigatedBy, AActor* DamageCauser)
 {
 	UE_LOG(LogHealthComponent, Display, TEXT("On radial damage: %f"), Damage);
 	ApplyDamage(Damage, InstigatedBy);

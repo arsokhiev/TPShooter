@@ -30,7 +30,7 @@ private:
 
 	UFUNCTION()
 	void OnTakeRadialDamageHandle(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, FVector Origin,
-	                        FHitResult HitInfo, class AController* InstigatedBy, AActor* DamageCauser);
+	                        const FHitResult& HitInfo, class AController* InstigatedBy, AActor* DamageCauser);
 
 	void HealUpdate();
 	void SetHealth(float NewHealth);
