@@ -11,6 +11,7 @@
 #include "TPSPlayerState.h"
 #include "TPSRespawnComponent.h"
 #include "TPSUtils.h"
+#include "TPSWeaponComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogTPSGameModeBase, All, All);
 
@@ -72,6 +73,7 @@ bool ATPSGameModeBase::SetPause(APlayerController* PC, FCanUnpause CanUnpauseDel
 	const auto PauseSet = Super::SetPause(PC, CanUnpauseDelegate);
 	if (PauseSet)
 	{
+		StopAllFire();
 		SetMatchState(ETPSMatchState::Pause);
 	}
 	
@@ -247,4 +249,15 @@ void ATPSGameModeBase::SetMatchState(ETPSMatchState State)
 
 	MatchState = State;
 	OnMatchStateChanged.Broadcast(MatchState);
+}
+
+void ATPSGameModeBase::StopAllFire()
+{
+	for (auto Pawn : TActorRange<APawn>(GetWorld()))
+	{
+		const auto WeaponComponent = TPSUtils::GetTPSPlayerComponent<UTPSWeaponComponent>(Pawn);
+		if (!WeaponComponent) continue;
+
+		WeaponComponent->StopFire();
+	}
 }

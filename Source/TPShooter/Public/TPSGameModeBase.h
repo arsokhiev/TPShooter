@@ -68,4 +68,6 @@ private:
 	void GameOver();
 
 	void SetMatchState(ETPSMatchState State);
+
+	void StopAllFire();
 };

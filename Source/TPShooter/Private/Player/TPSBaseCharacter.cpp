@@ -2,6 +2,7 @@
 
 
 #include "Player/TPSBaseCharacter.h"
+#include "TPSPlayerCharacter.h"
 #include "Components/TPSHealthComponent.h"
 #include "Components/TPSCharacterMovementComponent.h"
 #include "Engine/DamageEvents.h"
@@ -41,6 +42,18 @@ void ATPSBaseCharacter::BeginPlay()
 void ATPSBaseCharacter::Tick(float DeltaTime)
 {
 	ACharacter::Tick(DeltaTime);
+}
+
+void ATPSBaseCharacter::TurnOff()
+{
+	WeaponComponent->StopFire();
+	Super::TurnOff();
+}
+
+void ATPSBaseCharacter::Reset()
+{
+	WeaponComponent->StopFire();
+	Super::Reset();
 }
 
 bool ATPSBaseCharacter::IsRunning() const
