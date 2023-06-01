@@ -2,7 +2,6 @@
 
 
 #include "Player/TPSBaseCharacter.h"
-#include "TPSPlayerCharacter.h"
 #include "Components/TPSHealthComponent.h"
 #include "Components/TPSCharacterMovementComponent.h"
 #include "Engine/DamageEvents.h"
