@@ -28,6 +28,7 @@ public:
 
 	virtual void StartFire();
 	virtual void StopFire();
+	bool IsFiring() const;
 
 	virtual void PlayShootFeedback();
 	
@@ -63,6 +64,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
 	USoundCue* FireSound;
 
+	bool FireInProgress = false;
+	
 	virtual void BeginPlay() override;
 
 	virtual void MakeShoot();

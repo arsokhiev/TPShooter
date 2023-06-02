@@ -75,7 +75,7 @@ void ATPSPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	PlayerInputComponent->BindAction("Run", EInputEvent::IE_Pressed, this, &ATPSPlayerCharacter::OnStartRunning);
 	PlayerInputComponent->BindAction("Run", EInputEvent::IE_Released, this, &ATPSPlayerCharacter::OnStopRunning);
 
-	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Pressed, WeaponComponent, &UTPSWeaponComponent::StartFire);
+	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Pressed, this, &ATPSPlayerCharacter::OnStartFire);
 	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Released, WeaponComponent, &UTPSWeaponComponent::StopFire);
 
 	PlayerInputComponent->BindAction("NextWeapon", EInputEvent::IE_Pressed, WeaponComponent,&UTPSWeaponComponent::NextWeapon);
@@ -95,6 +95,11 @@ void ATPSPlayerCharacter::MoveForward(float Scale)
 	IsMovingForward = Scale > 0.0f;
 	if (Scale == 0.0f) return;
 	AddMovementInput(this->GetActorForwardVector(), Scale);
+
+	if (IsRunning() && WeaponComponent->IsFiring())
+	{
+		WeaponComponent->StopFire();
+	}
 }
 
 void ATPSPlayerCharacter::MoveRight(float Scale)
@@ -107,11 +112,22 @@ void ATPSPlayerCharacter::MoveRight(float Scale)
 void ATPSPlayerCharacter::OnStartRunning()
 {
 	WantsToRun = true;
+
+	if (IsRunning())
+	{
+		WeaponComponent->StopFire();
+	}
 }
 
 void ATPSPlayerCharacter::OnStopRunning()
 {
 	WantsToRun = false;
+}
+
+void ATPSPlayerCharacter::OnStartFire()
+{
+	if (IsRunning()) return;
+	WeaponComponent->StartFire();
 }
 
 void ATPSPlayerCharacter::OnCameraCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,

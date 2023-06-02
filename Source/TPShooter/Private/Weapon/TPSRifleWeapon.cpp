@@ -84,8 +84,9 @@ ATPSRifleWeapon::ATPSRifleWeapon()
 
 void ATPSRifleWeapon::StartFire()
 {
-	UE_LOG(LogRifleWeapon, Display, TEXT("FIRE!!!!"));
-
+	//UE_LOG(LogRifleWeapon, Display, TEXT("FIRE!!!!"));
+	Super::StartFire();
+	
 	InitFX();
 	GetWorldTimerManager().SetTimer(ShootTimerHandle, this, &ATPSRifleWeapon::MakeShoot, TimeBetweenShoots, true);
 	MakeShoot();

@@ -15,6 +15,7 @@ void ATPSLauncherWeapon::PlayShootFeedback()
 
 void ATPSLauncherWeapon::StartFire()
 {
+	Super::StartFire();
 	MakeShoot();
 }
 
@@ -54,5 +55,7 @@ void ATPSLauncherWeapon::MakeShoot()
 
 	UGameplayStatics::SpawnSoundAttached(FireSound, WeaponMesh, MuzzleSocketName);
 
+	StopFire();
+	
 	Super::MakeShoot();
 }

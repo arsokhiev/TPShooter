@@ -21,9 +21,20 @@ ATPSBaseWeapon::ATPSBaseWeapon()
 	SetRootComponent(WeaponMesh);
 }
 
-void ATPSBaseWeapon::StartFire() {}
+void ATPSBaseWeapon::StartFire()
+{
+	FireInProgress = true;
+}
 
-void ATPSBaseWeapon::StopFire() {}
+void ATPSBaseWeapon::StopFire()
+{
+	FireInProgress = false;
+}
+
+bool ATPSBaseWeapon::IsFiring() const
+{
+	return FireInProgress;
+}
 
 void ATPSBaseWeapon::PlayShootFeedback() {}
 

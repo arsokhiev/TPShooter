@@ -234,6 +234,11 @@ void UTPSWeaponComponent::StopFire()
 	CurrentWeapon->StopFire();
 }
 
+bool UTPSWeaponComponent::IsFiring() const
+{
+	return CurrentWeapon && CurrentWeapon->IsFiring();
+}
+
 void UTPSWeaponComponent::NextWeapon()
 {
 	if (!CanEquip()) return;

@@ -42,6 +42,7 @@ public:
 
 	virtual void StartFire();
 	void StopFire();
+	bool IsFiring() const;
 
 	virtual void NextWeapon();
 
