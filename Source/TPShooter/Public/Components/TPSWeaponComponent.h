@@ -48,6 +48,7 @@ public:
 
 	void Reload();
 
+	ATPSBaseWeapon* GetCurrentWeapon() const;
 	bool GetCurrentWeaponUIData(FWeaponUIData& UIData) const;
 	bool GetCurrentWeaponAmmoData(FAmmoData& AmmoData) const;
 

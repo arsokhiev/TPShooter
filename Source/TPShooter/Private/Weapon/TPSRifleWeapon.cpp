@@ -80,6 +80,7 @@ AController* ATPSRifleWeapon::GetController() const
 ATPSRifleWeapon::ATPSRifleWeapon()
 {
 	WeaponFXComponent = CreateDefaultSubobject<UTPSWeaponFXComponent>("WeaponFXComponent");
+	CurrentBulletSpread = DefaultBulletSpread;
 }
 
 void ATPSRifleWeapon::StartFire()
@@ -106,7 +107,7 @@ bool ATPSRifleWeapon::GetTraceData(FVector& TraceStart, FVector& TraceEnd) const
 	if (!GetPlayerViewPoint(ViewLocation, ViewRotation)) return false;
 
 	TraceStart = ViewLocation;
-	const auto HalfRad = FMath::DegreesToRadians(BulletSpread);
+	const auto HalfRad = FMath::DegreesToRadians(CurrentBulletSpread);
 	const FVector NormalizedShootDirection = FMath::VRandCone(ViewRotation.Vector(), HalfRad);
 	TraceEnd = TraceStart + (NormalizedShootDirection * TraceMaxDistance);
 	return true;

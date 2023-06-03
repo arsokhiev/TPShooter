@@ -36,12 +36,17 @@ private:
 
 	AController* GetController() const;
 
+	float CurrentBulletSpread;
+
 public:
 	ATPSRifleWeapon();
 	
 	virtual void StartFire() override;
 	virtual void StopFire() override;
 	virtual bool GetTraceData(FVector& TraceStart, FVector& TraceEnd) const override;
+
+	void ChangeBulletSpread(float Spread) { CurrentBulletSpread = Spread; }
+	float GetDefaultBulletSpread() const { return DefaultBulletSpread; }
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
@@ -54,7 +59,7 @@ protected:
 	float TimeBetweenShoots = 0.15f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
-	float BulletSpread = 0.7f;
+	float DefaultBulletSpread = 0.7f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
 	UTPSWeaponFXComponent* WeaponFXComponent;

@@ -2,6 +2,7 @@
 
 
 #include "Player/TPSPlayerCharacter.h"
+#include "TPSRifleWeapon.h"
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -165,10 +166,24 @@ void ATPSPlayerCharacter::EnableZoom()
 {
 	AimingTimeline.AddInterpFloat(CurveFOV, AimingTimelineProgress);
 	AimingTimeline.PlayFromStart();
+	
+	if (WeaponComponent && WeaponComponent->GetCurrentWeapon() &&
+		WeaponComponent->GetCurrentWeapon()->IsA(ATPSRifleWeapon::StaticClass()))
+	{
+		const auto CurrentWeapon = Cast<ATPSRifleWeapon>(WeaponComponent->GetCurrentWeapon());
+		CurrentWeapon->ChangeBulletSpread(0.0);
+	}
 }
 
 void ATPSPlayerCharacter::DisableZoom()
 {
 	AimingTimeline.AddInterpFloat(CurveFOV, AimingTimelineProgress);
 	AimingTimeline.ReverseFromEnd();
+
+	if (WeaponComponent && WeaponComponent->GetCurrentWeapon() &&
+		WeaponComponent->GetCurrentWeapon()->IsA(ATPSRifleWeapon::StaticClass()))
+	{
+		const auto CurrentWeapon = Cast<ATPSRifleWeapon>(WeaponComponent->GetCurrentWeapon());
+		CurrentWeapon->ChangeBulletSpread(CurrentWeapon->GetDefaultBulletSpread());
+	}
 }

@@ -251,6 +251,12 @@ void UTPSWeaponComponent::Reload()
 	ChangeClip();
 }
 
+ATPSBaseWeapon* UTPSWeaponComponent::GetCurrentWeapon() const
+{
+	if (!CurrentWeapon) return nullptr;
+	return CurrentWeapon;
+}
+
 bool UTPSWeaponComponent::GetCurrentWeaponUIData(FWeaponUIData& UIData) const
 {
 	if (CurrentWeapon)
