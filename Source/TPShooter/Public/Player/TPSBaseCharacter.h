@@ -37,10 +37,10 @@ protected:
 	float LifeSpanOnDeath = 5.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")
-	FVector2D LandedDamageVelocity = FVector2D(900.0f, 1200.0f);
+	FVector2D LandedDamageVelocity = FVector2D(1000.0f, 3000.0f);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")
-	FVector2D LandedDamage = FVector2D(10.0f, 100.0f);
+	FVector2D LandedDamage = FVector2D(100.0f, 500.0f);
 
 	UPROPERTY(EditAnywhere, Category = "Material")
 	FName MaterialColorName = "Paint Color";
