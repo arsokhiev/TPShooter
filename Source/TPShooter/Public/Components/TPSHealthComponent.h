@@ -10,6 +10,13 @@
 class UCameraShakeBase;
 class UPhysicalMaterial;
 
+UENUM(BlueprintType)
+enum class EHealthEffects : uint8
+{
+	IncreaseHealth = 0,
+	DecreaseHealth
+};
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class TPSHOOTER_API UTPSHealthComponent : public UActorComponent
 {
@@ -34,7 +41,7 @@ private:
 
 	void HealUpdate();
 	void SetHealth(float NewHealth);
-	void PlayCameraShake();
+	void PlayCameraShake(EHealthEffects);
 
 	void Killed(AController* KillerController);
 
@@ -85,5 +92,8 @@ protected:
 	float HealModifier = 1.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
-	TSubclassOf<UCameraShakeBase> CameraShake;
+	TSubclassOf<UCameraShakeBase> DamageCameraShake;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
+	TSubclassOf<UCameraShakeBase> HealCameraShake;
 };

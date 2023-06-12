@@ -32,7 +32,7 @@ void UTPSHealthComponent::SetHealth(float NewHealth)
 	OnHealthChanged.Broadcast(Health, HealthDelta);
 }
 
-void UTPSHealthComponent::PlayCameraShake()
+void UTPSHealthComponent::PlayCameraShake(const EHealthEffects HealthEffect)
 {
 	if (IsDead()) return;
 
@@ -42,7 +42,14 @@ void UTPSHealthComponent::PlayCameraShake()
 	const APlayerController* Controller = Player->GetController<APlayerController>();
 	if (!Controller || !Controller->PlayerCameraManager) return;
 
-	Controller->PlayerCameraManager->StartCameraShake(CameraShake);
+	if (HealthEffect == EHealthEffects::DecreaseHealth)
+	{
+		Controller->PlayerCameraManager->StartCameraShake(DamageCameraShake);
+	}
+	else if (HealthEffect == EHealthEffects::IncreaseHealth)
+	{
+		Controller->PlayerCameraManager->StartCameraShake(HealCameraShake);
+	}
 }
 
 void UTPSHealthComponent::Killed(AController* KillerController)
@@ -82,7 +89,7 @@ void UTPSHealthComponent::ApplyDamage(float Damage, AController* InstigatedBy)
 											   true, HealDelay);
 	}
 
-	PlayCameraShake();
+	PlayCameraShake(EHealthEffects::DecreaseHealth);
 	ReportDamageEvent(Damage, InstigatedBy);
 }
 
@@ -119,6 +126,8 @@ bool UTPSHealthComponent::TryToAddHealth(float HealthAmount)
 	if (IsDead() || IsHealthFull()) return false;
 
 	SetHealth(Health + HealthAmount);
+	PlayCameraShake(EHealthEffects::IncreaseHealth);
+	
 	return true;
 }
 
